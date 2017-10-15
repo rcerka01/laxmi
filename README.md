@@ -1,4 +1,3 @@
-x
 # Laxmi
 <p>
   <img src="laxmi.png"/>
