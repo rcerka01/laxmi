@@ -10,9 +10,9 @@ app.get("/", function(req, res) {
     res.render("temp");
 });
 
-// error at start up
-// versions and times
-// add nr of games in play
+app.get("/", function(req, res) {
+    res.render("temp");
+});
  
 var mainSchedulerController = require('./controllers/mainSchedulerController');
 mainSchedulerController.run();

@@ -4,7 +4,7 @@ module.exports = {
     app: {
         port: 3002,
         updateTimes: {
-            seconds: [5, 15, 25, 35, 45, 55]
+            seconds: [3,33]
         }
     },
     mrGreen: {

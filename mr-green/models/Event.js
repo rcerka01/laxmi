@@ -5,7 +5,8 @@ var dbName = conf.db.name;
 var dbLogin = conf.db.login;
 var dbPassword = conf.db.password;
 
-mongoose.connect("mongodb://" + dbLogin + ":" + dbPassword + "@ds143774.mlab.com:43774/" + dbName);
+mongoose.Promise = global.Promise; // just must have
+mongoose.connect("mongodb://" + dbLogin + ":" + dbPassword + "@ds143774.mlab.com:43774/" + dbName, {useMongoClient: true});
 
 var Schema = mongoose.Schema;
 
