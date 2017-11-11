@@ -14,7 +14,7 @@ app.get("/", function(req, res) {
     res.render("temp");
 });
  
-var mainSchedulerController = require('./controllers/mainSchedulerController');
+var mainSchedulerController = require('./controllers/soccerMainController');
 mainSchedulerController.run();
 
 app.listen(conf.app.port);

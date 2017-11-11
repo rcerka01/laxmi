@@ -2,7 +2,9 @@ var conf = require("../config/config");
 var event = require("../models/Event").newDataset;
 
 var prevGameArr = [];
-function logSoccerEvents(msg, times, version) {
+function logSoccerEvents(response, times, version) {
+      var msg = response.body;
+
       // if true outputs dividing line in logs
       var updated = false;
       // temporary current list
