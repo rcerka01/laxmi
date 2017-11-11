@@ -4,7 +4,8 @@ var dateFormat = require('dateformat');
 
 var urlEventTypesList = "https://api.betfair.com/exchange/betting/rest/v1.0/listEventTypes/";
 var urlCatalogueList = "https://api.betfair.com/exchange/betting/rest/v1.0/listMarketCatalogue/";
-var urlBookList = "https://api.betfair.com/exchange/betting/rest/v1.0/listMarketBook/";
+var urlMarketBookList = "https://api.betfair.com/exchange/betting/rest/v1.0/listMarketBook/";
+var urlRunnerBookList = "https://api.betfair.com/exchange/betting/rest/v1.0/listRunnerBook/";
 
 var bodyEventTypesList = { filter: { } }
 function bodySocerEventsList(nowIso, tomorrowIso) { return { filter: { eventTypeIds: [ 1 ],
@@ -17,7 +18,9 @@ function bodySocerInPlayEvents(nowIso, tomorrowIso) { return { filter: { eventTy
                                         maxResults : 100 
                                     }}
 function bodyCatalogueList(eventIds) { return { 	filter: {
-                                            eventIds: [eventIds]
+                                            eventIds: [eventIds],
+                                            marketBettingTypes: ["ODDS"],
+                                            marketTypeCodes: ["MATCH_ODDS"]
                                         },
                                         marketProjection: [
                                                 "COMPETITION",
@@ -27,13 +30,27 @@ function bodyCatalogueList(eventIds) { return { 	filter: {
                                                 "RUNNER_METADATA",
                                                 "MARKET_START_TIME"
                                             ],
-                                        maxResults: 10
+                                        maxResults: 100
                                     }}
-function bodyBookList(marketIds) { return { marketIds: [marketIds],
-                                            priceProjection: {
-                                                priceData: ["EX_BEST_OFFERS", "EX_TRADED"],
-                                                virtualise: true
-                                            }}}
+function bodyMarketBookList(marketIds) { return { marketIds: [marketIds],
+                                                    priceProjection: {
+                                                        priceData: ["EX_BEST_OFFERS", "EX_TRADED"],
+                                                        virtualise: true
+                                        }}}
+
+function bodyRunnerBookList(marketId, selectionId) { return { marketId: marketId,
+                                                              selectionId: selectionId,
+                                                              priceProjection:{
+                                                                priceData: [
+                                                                    "EX_ALL_OFFERS",
+                                                                    "SP_AVAILABLE",
+                                                                    "SP_TRADED",
+                                                                    "EX_BEST_OFFERS",
+                                                                    "EX_ALL_OFFERS",
+                                                                    "EX_ALL_OFFERS",
+                                                                    "EX_BEST_OFFERS",
+                                                                    "EX_TRADED"]
+                                                    }}}	
 
 function options(url, token, body) {
     return {
@@ -53,7 +70,7 @@ module.exports = function(app, token) {
     var utilities = require("./utilities");
 
     // ****************************************************
-    // * GET List Catalogue (all game items by passing game id)
+    // * GET List Market Catalogue (all game items by passing game id)
     // ****************************************************
     app.get("/api/listCatalogue/:eventid", function(req, res) {
         function callback(error, response, body) {
@@ -80,9 +97,9 @@ module.exports = function(app, token) {
     });
 
     // ****************************************************
-    // * GET List Bet (by passing market id)
+    // * GET List Market Bet (by passing market id)
     // ****************************************************
-    app.get("/api/listBet/:marketid", function(req, res) {
+    app.get("/api/listMarketBet/:marketid", function(req, res) {
         function callback(error, response, body) {
             if (!error && response.statusCode == 200) {
                 
@@ -103,7 +120,34 @@ module.exports = function(app, token) {
              }
         }
 
-        request.post(options(urlBookList, token, bodyBookList(req.params.marketid)), callback);
+        request.post(options(urlMarketBookList, token, bodyMarketBookList(req.params.marketid)), callback);
+    });
+
+    // ****************************************************
+    // * GET List Runner Bet (by passing market id)
+    // ****************************************************
+    app.get("/api/listRunnerBet/:marketid/:selectionid", function(req, res) {
+        function callback(error, response, body) {
+            if (!error && response.statusCode == 200) {
+                
+                var output = [];
+                body.map(item => {                    
+                    output.push({
+                        item
+                    })
+            });
+
+           res.json(output);
+            
+            } else if (response.statusCode == 400) { 
+                utilities.recoverFromUnauthorisedRequest(app, req, res) 
+             } else {
+                console.log("Unexpected error from " + req.url +", " + error)
+                res.json([]);
+             }
+        }
+        
+       request.post(options(urlRunnerBookList, token, bodyRunnerBookList(req.params.marketid,req.params.selectionid)), callback);
     });
 
     // ****************************************************
