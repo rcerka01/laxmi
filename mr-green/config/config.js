@@ -4,7 +4,7 @@ module.exports = {
     app: {
         port: 3002,
         updateTimes: {
-            // seconds: [3, 13, 23, 33, 43, 53]
+            //seconds: [3, 13, 23, 33, 43, 53]
             seconds: [5]
         }
     },

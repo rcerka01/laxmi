@@ -32,11 +32,10 @@ function placeBet(domainMrGreen, eventId, marketId, name, elapsedTime) {
                             .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
                             .end(function (listRunnerBetResponse) {
 
-                                console.log("ITEM")
-
                                 if (listRunnerBetResponse.body[0] !== 'undefined') {
                                     if (listRunnerBetResponse.body[0].item !== 'undefined') {
-                                        if (listRunnerBetResponse.body[0].item.runners !== 'undefined') {
+                                 
+                                       if (listRunnerBetResponse.body[0].item.runners !== 'undefined') {
                                             if (listRunnerBetResponse.body[0].item.runners[0].ex !== 'undefined') {
                                                 
                                                 var back = 0;
@@ -60,34 +59,19 @@ function placeBet(domainMrGreen, eventId, marketId, name, elapsedTime) {
                                                     back = back,
                                                     lay = lay,
                                                     results = "",
-                                                    comment = ""
-                                                    ).save(function(err) {
-                                                        if (err) {
-                                                            console.log("ERROR writing ACTION to DB");                        
-                                                            throw err;
-                                                        } 
-                                                    });
-                                                
-                                                console.log("IT HAPPEN")
-                                                console.log("EVENT_NAME: " + eventName)
-                                                console.log("VINNER: " + name)
-                                                console.log("EVENT_ID: " + eventId)
-                                                console.log("MARKET_ID: " + marketId)
-                                                console.log("SELECTION_ID: " + selectionId)
-                                                console.log("ELAPSED_TIME: " + elapsedTime) 
-                                                if (listRunnerBetResponse.body[0].item.runners[0].ex.availableToBack[0]) {
-/* DO VE HAVE TO TAKE FIRST VALUE ??? */            console.log("AVAILABLE_TO_BACK: " + listRunnerBetResponse.body[0].item.runners[0].ex.availableToBack[0].price)
-                                                }
-                                                if (listRunnerBetResponse.body[0].item.runners[0].ex.availableToLay[0]) {
- /* DO VE HAVE TO TAKE FIRST VALUE ??? */           console.log("AVAILABLE_TO_LAY: " + listRunnerBetResponse.body[0].item.runners[0].ex.availableToLay[0].price)
-                                                }
-                                                console.log("")
+                                                    comment = "v1.1"
+                                                ).save(function(err) {
+                                                    if (err) {
+                                                        console.log("ERROR writing ACTION to DB");                        
+                                                        throw err;
+                                                    } 
+                                                });
                                             }
                                         }
                                     }
                                 }
                             });
-
+                        // FINISH RETRIEVE RUNNER BET
                         /////////////////////////////////////////////////////////////////////
                     }
                 }

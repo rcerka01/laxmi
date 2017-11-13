@@ -31,7 +31,7 @@ function updateSoccerGames(times) {
                 soccerLoggs.logSoccerEvents(gamesInPlayResponse, times, version);
             })
             .on('error', function(e) {
-                console.log("Error rerieving listInPlaySoccerEvents from Mr Green API: " + e.message);
+                console.log("Error rerieving listInPlaySoccerEvents from Mr Grold API: " + e.message);
     });
 }
 

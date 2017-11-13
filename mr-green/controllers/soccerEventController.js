@@ -1,6 +1,7 @@
 var unirest = require('unirest');
 var conf = require("../config/config");
 var betting = require("./soccerBettingController");
+var Action = require("../models/Action").dataset
 
 var placedBets = [];
 
@@ -44,7 +45,7 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGreen) {
 
                 // if so, run
                 if (run) {
-                    // not already bet
+                    // not already bet 
                     if (!placedBets.includes(games[i].eventId)) {
                         // elapsed time
                         if (games[i].state.timeElapsed >= conf.soccer.elapsedTime) {
@@ -58,7 +59,7 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGreen) {
                             // 2. away team vining
                             else if (games[i].state.score.away.score - games[i].state.score.home.score >= conf.soccer.scoreHigher) {
                                 // to avoid double betting
-                                placedBets.push(games[i].eventId);
+                                placedBets.push(games[i].eventId);                                
                                 betting.placeBet(domainMrGreen, games[i].eventId, games[i].marketId, games[i].awayName, games[i].state.timeElapsed);
                             }
                         }
@@ -66,12 +67,61 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGreen) {
                 }
             }
 
-            // to clean up placed bets
+            // TO CLEAN UP PLACED BETS AND WRITE RESULTS
+            //////////////////////////////////////////////////////
             for(var b in placedBets) {
-                if (!prevEventIds.includes(placedBets[b]))
-                    placedBets = placedBets.filter(item => item !== placedBets[b])                                
-            }
+                if (!prevEventIds.includes(placedBets[b])) {
+                    
+                    // remove eventIds from "not double bet" array (IF SAVE WILL NOT WORK RESULTS ARE LOST...)
+                    var finishedItem = placedBets[b];
+                    placedBets = placedBets.filter(item => item !== finishedItem);
 
+                    // retrieve from db by using placedBets array value
+                    Action.findOne({"eventId": finishedItem}, "marketId results", function (err, action) {
+                        if (err) console.log("Error retrieve Action from DB to write result: " + err);
+
+                        if (action) {
+                            unirest.get(domainMrGreen + '/api/listMarketBet/'+action.marketId)
+                                .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+                                .end(function (listMarketBetResponse) {
+
+                                    // checks for response from listMarketBet
+                                    if (listMarketBetResponse.body[0] !== 'undefined') {
+                                        if (listMarketBetResponse.body[0].item !== 'undefined') {
+                                            if (listMarketBetResponse.body[0].item.runners !== 'undefined') {
+                                                if (listMarketBetResponse.body[0].item.runners) {
+                                                    
+                                                    var runners = listMarketBetResponse.body[0].item.runners;
+                                                    
+                                                    // loop trough 3 result variants
+                                                    for (var i in runners){
+                                                        if (runners[i].status == "WINNER") {
+
+                                                            // update db field
+                                                            action.results = "WINNER: " + runners[i].selectionId;
+                                                        
+                                                            // write to DB
+                                                            action.save(function(err) {
+                                                                if (err) {
+                                                                    console.log("ERROR writing update ACTION to DB");                        
+                                                                } 
+                                                            });
+                                                        // if Winner
+                                                        }
+                                                    // loop
+                                                    }
+                                                // checks                                                   
+                                                }
+                                            }
+                                        }
+                                    }
+                                // unirest
+                                });
+                        // if action defind
+                        }
+                    })
+                }                            
+            }
         })
         .on('error', function(e) {
             console.log("Error rerieving /api/listEventStatus from Vishnu API: " + e.message);
