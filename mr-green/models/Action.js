@@ -21,6 +21,7 @@ var actionSchema = new Schema({
     back: Number,
     lay: Number,
     results: String,
+    betStatus: Schema.Types.Mixed,
     comment: String
 });
 
@@ -39,6 +40,7 @@ module.exports = {
         back,
         lay,
         results,
+        betStatus,
         comment) { return Action({
             date: date,
             gameName: gameName,
@@ -50,6 +52,7 @@ module.exports = {
             back: back,
             lay: lay,
             results: results,
+            betStatus: betStatus,
             comment: comment
         })
     }

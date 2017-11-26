@@ -8,7 +8,7 @@ module.exports = {
             seconds: [5]
         }
     },
-    mrGreen: {
+    mrGold: {
         host: "raitis.co.uk",
         protocol: "http",
         port: 3001
@@ -24,6 +24,7 @@ module.exports = {
         password: secret.db.password
     },
     soccer: {
+        bid: 2,
         elapsedTime: 70,
         scoreHigher: 2
     }

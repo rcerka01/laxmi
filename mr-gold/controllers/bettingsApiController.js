@@ -2,55 +2,88 @@ var conf = require("../config/config");
 var request = require("request");
 var dateFormat = require('dateformat');
 
+/************************************** URL ***************************************** */
+
 var urlEventTypesList = "https://api.betfair.com/exchange/betting/rest/v1.0/listEventTypes/";
 var urlCatalogueList = "https://api.betfair.com/exchange/betting/rest/v1.0/listMarketCatalogue/";
 var urlMarketBookList = "https://api.betfair.com/exchange/betting/rest/v1.0/listMarketBook/";
 var urlRunnerBookList = "https://api.betfair.com/exchange/betting/rest/v1.0/listRunnerBook/";
+var urlPlaceOrders = "https://api.betfair.com/exchange/betting/rest/v1.0/placeOrders/";
+
+/************************************** BODY ***************************************** */
 
 var bodyEventTypesList = { filter: { } }
-function bodySocerEventsList(nowIso, tomorrowIso) { return { filter: { eventTypeIds: [ 1 ],
-                                      marketStartTime: {
-                                        from: nowIso,
-                                        to: tomorrowIso     
-                                    }}}}
-function bodySocerInPlayEvents(nowIso, tomorrowIso) { return { filter: { eventTypeIds: [ 1 ],
-                                        inPlayOnly: true },
-                                        maxResults : 100 
-                                    }}
-function bodyCatalogueList(eventIds) { return { 	filter: {
-                                            eventIds: [eventIds],
-                                            marketBettingTypes: ["ODDS"],
-                                            marketTypeCodes: ["MATCH_ODDS"]
-                                        },
-                                        marketProjection: [
-                                                "COMPETITION",
-                                                "EVENT",
-                                                "EVENT_TYPE",
-                                                "RUNNER_DESCRIPTION",
-                                                "RUNNER_METADATA",
-                                                "MARKET_START_TIME"
-                                            ],
-                                        maxResults: 100
-                                    }}
-function bodyMarketBookList(marketIds) { return { marketIds: [marketIds],
-                                                    priceProjection: {
-                                                        priceData: ["EX_BEST_OFFERS", "EX_TRADED"],
-                                                        virtualise: true
-                                        }}}
+function bodySocerEventsList(nowIso, tomorrowIso) { return { 
+    filter: { eventTypeIds: [ 1 ],
+    marketStartTime: {
+    from: nowIso,
+    to: tomorrowIso     
+}}}}
 
-function bodyRunnerBookList(marketId, selectionId) { return { marketId: marketId,
-                                                              selectionId: selectionId,
-                                                              priceProjection:{
-                                                                priceData: [
-                                                                    "EX_ALL_OFFERS",
-                                                                    "SP_AVAILABLE",
-                                                                    "SP_TRADED",
-                                                                    "EX_BEST_OFFERS",
-                                                                    "EX_ALL_OFFERS",
-                                                                    "EX_ALL_OFFERS",
-                                                                    "EX_BEST_OFFERS",
-                                                                    "EX_TRADED"]
-                                                    }}}	
+function bodySocerInPlayEvents(nowIso, tomorrowIso) { return { 
+    filter: { 
+        eventTypeIds: [ 1 ],
+        inPlayOnly: true },
+    maxResults : 100 
+}}
+
+function bodyCatalogueList(eventIds) { return { 
+    filter: {
+        eventIds: [eventIds],
+        marketBettingTypes: ["ODDS"],
+        marketTypeCodes: ["MATCH_ODDS"]
+    },
+    marketProjection: [
+            "COMPETITION",
+            "EVENT",
+            "EVENT_TYPE",
+            "RUNNER_DESCRIPTION",
+            "RUNNER_METADATA",
+            "MARKET_START_TIME"
+        ],
+    maxResults: 100
+}}
+
+function bodyMarketBookList(marketIds) { return { 
+    marketIds: [marketIds],
+    priceProjection: {
+        priceData: ["EX_BEST_OFFERS", "EX_TRADED"],
+        virtualise: true
+}}}
+
+function bodyRunnerBookList(marketId, selectionId) { return { 
+    marketId: marketId,
+    selectionId: selectionId,
+    priceProjection:{
+    priceData: [
+        "EX_ALL_OFFERS",
+        "SP_AVAILABLE",
+        "SP_TRADED",
+        "EX_BEST_OFFERS",
+        "EX_ALL_OFFERS",
+        "EX_ALL_OFFERS",
+        "EX_BEST_OFFERS",
+        "EX_TRADED"]
+}}}	
+
+function bodyPlaceOrders(marketId, selectionId, size, price) { return { 
+    marketId: marketId,
+    instructions: [
+        {
+            selectionId: selectionId,
+            handicap: "0",
+            side: "BACK",
+            orderType: "LIMIT",
+            limitOrder: {
+                size: size,
+                price: price,
+                persistenceType: "LAPSE"
+            }
+        }
+    ]
+}}
+
+/************************************** OPTIONS ***************************************** */
 
 function options(url, token, body) {
     return {
@@ -179,6 +212,26 @@ module.exports = function(app, token) {
         }
 
         request.post(options(urlEventTypesList, token, bodyEventTypesList), callback);
+    });
+
+    // ****************************************************
+    // * GET List Runner Bet (by passing market id)
+    // ****************************************************
+    app.get("/api/placeOrders/:marketid/:selectionid/:size/:price", function(req, res) {
+        function callback(error, response, body) {
+            if (!error && (response.statusCode == 200 || response.statusCode == 400)) {
+                res.json(response.body)
+             } else {
+                console.log("Unexpected error from " + req.url +", " + error)
+                res.json({error});
+             }
+        }
+        
+       request.post(options(urlPlaceOrders, token, bodyPlaceOrders(
+                                                    req.params.marketid,
+                                                    req.params.selectionid,
+                                                    req.params.size,
+                                                    req.params.price)), callback);
     });
 
     // ****************************************************

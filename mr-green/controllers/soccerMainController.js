@@ -5,7 +5,7 @@ var soccerEvents = require("./soccerEventController");
 var soccerLoggs = require("./soccerLoggController");
 var util = require("./utilities");
 
-const domainMrGreen = conf.mrGreen.protocol + "://" + conf.mrGreen.host + ":" + conf.mrGreen.port
+const domainMrGold = conf.mrGold.protocol + "://" + conf.mrGold.host + ":" + conf.mrGold.port
 const domainVishnu = conf.vishnu.protocol + "://" + conf.vishnu.host + ":" + conf.vishnu.port
 
 var rule = new schedule.RecurrenceRule();
@@ -15,7 +15,7 @@ var times = 0;
 var version = 0;
 
 function updateSoccerGames(times) {
-    unirest.get(domainMrGreen + '/api/listInPlaySoccerEvents')
+    unirest.get(domainMrGold + '/api/listInPlaySoccerEvents')
             .end(function (gamesInPlayResponse) {
 
                 // first iteration, detect version (restart)                              
@@ -25,7 +25,7 @@ function updateSoccerGames(times) {
                 }
 
                 // CATCING CONDITIONS
-                soccerEvents.catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGreen);
+                soccerEvents.catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold);
 
                 // LOGGING CHANGES
                 soccerLoggs.logSoccerEvents(gamesInPlayResponse, times, version);

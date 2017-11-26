@@ -5,7 +5,7 @@ var Action = require("../models/Action").dataset
 
 var placedBets = [];
 
-function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGreen) {
+function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold) {
     
     // retrieve all event Ids
     var eventIds = "";
@@ -54,13 +54,13 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGreen) {
                             if (games[i].state.score.home.score - games[i].state.score.away.score >= conf.soccer.scoreHigher) {
                                 // to avoid double betting
                                 placedBets.push(games[i].eventId);
-                                betting.placeBet(domainMrGreen, games[i].eventId, games[i].marketId, games[i].homeName, games[i].state.timeElapsed);
+                                betting.placeBet(domainMrGold, games[i].eventId, games[i].marketId, games[i].homeName, games[i].state.timeElapsed);
                             }
                             // 2. away team vining
                             else if (games[i].state.score.away.score - games[i].state.score.home.score >= conf.soccer.scoreHigher) {
                                 // to avoid double betting
                                 placedBets.push(games[i].eventId);                                
-                                betting.placeBet(domainMrGreen, games[i].eventId, games[i].marketId, games[i].awayName, games[i].state.timeElapsed);
+                                betting.placeBet(domainMrGold, games[i].eventId, games[i].marketId, games[i].awayName, games[i].state.timeElapsed);
                             }
                         }
                     }
@@ -81,7 +81,7 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGreen) {
                         if (err) console.log("Error retrieve Action from DB to write result: " + err);
 
                         if (action) {
-                            unirest.get(domainMrGreen + '/api/listMarketBet/'+action.marketId)
+                            unirest.get(domainMrGold + '/api/listMarketBet/'+action.marketId)
                                 .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
                                 .end(function (listMarketBetResponse) {
 
