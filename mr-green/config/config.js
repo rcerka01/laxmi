@@ -25,7 +25,7 @@ module.exports = {
     },
     soccer: {
         bid: 2,
-        elapsedTime: 70,
+        elapsedTime: 80,
         scoreHigher: 2
     }
 }
