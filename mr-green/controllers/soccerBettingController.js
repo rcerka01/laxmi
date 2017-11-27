@@ -73,9 +73,9 @@ function placeBet(domainMrGold, eventId, marketId, name, elapsedTime) {
                                                         lay = lay,
                                                         results = "",
                                                         betStatus = {
-                                                        "status": body.status,
-                                                        "instructionReports": instructionReports,
-                                                        "detail": detail
+                                                            "status": body.status,
+                                                            "instructionReports": instructionReports,
+                                                            "detail": detail
                                                         },
                                                         comment = "v1.2"
                                                     ).save(function(err) {

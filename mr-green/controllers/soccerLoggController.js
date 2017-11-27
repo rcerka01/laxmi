@@ -34,6 +34,10 @@ function logSoccerEvents(response, times, version) {
           // update
           if (prevGameArr[ii].name == item.name &&
             prevGameArr[ii].market_count != item.market_count) {
+                
+                
+                // JSON.stringify(data1) == JSON.stringify(data2)
+                
             
             event(
                 date = Date(),
