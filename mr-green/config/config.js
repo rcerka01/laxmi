@@ -24,7 +24,7 @@ module.exports = {
         password: secret.db.password
     },
     soccer: {
-        bid: 2,
+        bid: 5,
         elapsedTime: 80,
         scoreHigher: 2
     }
