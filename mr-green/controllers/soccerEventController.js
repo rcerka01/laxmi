@@ -62,13 +62,22 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold) {
                                 if (games[i].state.score.home.score - games[i].state.score.away.score >= conf.soccer.scoreHigher) {
                                     // to avoid double betting
                                     placedBets.push(games[i].eventId);
-                                    betting.placeBet(domainMrGold, games[i].eventId, games[i].marketId, games[i].homeName, games[i].state.timeElapsed);
+
+                                    // place bet
+                                    if (conf.app.live) {
+                                        betting.placeBet(domainMrGold, games[i].eventId, games[i].marketId, games[i].homeName, games[i].state.timeElapsed);
+                                    }
+
                                 }
                                 // 2. away team vining
                                 else if (games[i].state.score.away.score - games[i].state.score.home.score >= conf.soccer.scoreHigher) {
                                     // to avoid double betting
-                                    placedBets.push(games[i].eventId);                                
-                                    betting.placeBet(domainMrGold, games[i].eventId, games[i].marketId, games[i].awayName, games[i].state.timeElapsed);
+                                    placedBets.push(games[i].eventId);
+                                    
+                                    // place bet
+                                    if (conf.app.live) {
+                                        betting.placeBet(domainMrGold, games[i].eventId, games[i].marketId, games[i].awayName, games[i].state.timeElapsed);
+                                    }
                                 }
                             }
                         }
