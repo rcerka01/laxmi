@@ -2,7 +2,7 @@ var schedule = require('node-schedule');
 var unirest = require('unirest');
 var conf = require("../config/config");
 var soccerEvents = require("./soccerEventController");
-var soccerLoggs = require("./soccerLoggController");
+//var soccerLoggs = require("./soccerLoggController");
 var util = require("./utilities");
 
 const domainMrGold = conf.mrGold.protocol + "://" + conf.mrGold.host + ":" + conf.mrGold.port
@@ -28,7 +28,7 @@ function updateSoccerGames(times) {
                 soccerEvents.catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold);
 
                 // LOGGING CHANGES
-                soccerLoggs.logSoccerEvents(gamesInPlayResponse, times, version);
+                //soccerLoggs.logSoccerEvents(gamesInPlayResponse, times, version);
             })
             .on('error', function(e) {
                 console.log("Error rerieving listInPlaySoccerEvents from Mr Grold API: " + e.message);

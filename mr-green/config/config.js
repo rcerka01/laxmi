@@ -19,13 +19,22 @@ module.exports = {
         port: 3003
     },
     db: {
+        domain: "@ds143774.mlab.com:43774/",
         name: "betfair-db",
         login: secret.db.login,
         password: secret.db.password
     },
+    // [TEST DB]
+    // db: {
+    //     domain: "@ds123796.mlab.com:23796/",
+    //     name: "betfairtestdb",
+    //     login: secret.testDb.login,
+    //     password: secret.testDb.password
+    // },
     soccer: {
         bid: 5,
         elapsedTime: 80,
-        scoreHigher: 2
+        scoreHigher: 2,
+        version: "v1.4"
     }
 }
