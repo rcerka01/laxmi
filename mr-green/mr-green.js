@@ -9,10 +9,6 @@ app.use("/assets", express.static(__dirname + "/public"));
 app.get("/", function(req, res) {
     res.render("temp");
 });
-
-app.get("/", function(req, res) {
-    res.render("temp");
-});
  
 var mainSchedulerController = require('./controllers/soccerMainController');
 mainSchedulerController.run();

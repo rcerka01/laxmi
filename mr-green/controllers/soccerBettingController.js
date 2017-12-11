@@ -77,7 +77,8 @@ function placeBet(domainMrGold, eventId, marketId, name, elapsedTime) {
                                                             "instructionReports": instructionReports,
                                                             "detail": detail
                                                         },
-                                                        comment = "v1.3"
+                                                        comment = "",
+                                                        version =  conf.soccer.version
                                                     ).save(function(err) {
                                                         if (err) {
                                                             console.log("ERROR writing ACTION to DB: " + err);                        

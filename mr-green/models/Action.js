@@ -2,11 +2,12 @@ var conf = require("../config/config");
 var mongoose= require("mongoose");
 
 var dbName = conf.db.name;
+var dbDomain = conf.db.domain;
 var dbLogin = conf.db.login;
 var dbPassword = conf.db.password;
 
 mongoose.Promise = global.Promise; // just must have
-mongoose.connect("mongodb://" + dbLogin + ":" + dbPassword + "@ds143774.mlab.com:43774/" + dbName, {useMongoClient: true});
+mongoose.connect("mongodb://" + dbLogin + ":" + dbPassword + dbDomain + dbName, {useMongoClient: true});
 
 var Schema = mongoose.Schema;
 
@@ -22,7 +23,8 @@ var actionSchema = new Schema({
     lay: Number,
     results: String,
     betStatus: Schema.Types.Mixed,
-    comment: String
+    comment: String,
+    version: String
 });
 
 var Action = mongoose.model("Action", actionSchema);
@@ -41,7 +43,8 @@ module.exports = {
         lay,
         results,
         betStatus,
-        comment) { return Action({
+        comment,
+        version) { return Action({
             date: date,
             gameName: gameName,
             vinner: vinner,
@@ -53,7 +56,8 @@ module.exports = {
             lay: lay,
             results: results,
             betStatus: betStatus,
-            comment: comment
+            comment: comment,
+            version:version
         })
     }
 }
