@@ -356,7 +356,9 @@ function logSoccerGames(currentStatuses, domainMrGold) {
 
         // LOG SINGLE MARKET AT THE END ----------------------------
 
-        if (currentStatuses[i].state.timeElapsed >= conf.soccer.timeCollectMarketLog) {
+        try { var gameTime = currentStatuses[i].state.timeElapsed } catch(e) { var gameTime = 0 }
+
+        if (gameTime >= conf.soccer.timeCollectMarketLog) {
             saveSingleMarketLog(currentStatuses[i].marketId, currentStatuses[i].eventId, domainMrGold)
         }
 
