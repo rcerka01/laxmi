@@ -156,6 +156,44 @@ var conf = require("../config/config");
 
 // PRIVATE FUNCTIONS ####################################################################################
 
+function saveSingleMarketLog(marketId, eventId, domainMrGold) {
+
+    unirest.get(domainMrGold + '/api/listMarketBet/' + marketId)
+    .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+    .end(function (marketBetResponse) {
+
+        // add marketId and eventId
+        var marketBet = marketBetResponse.body;
+        var finishedMarketBet = {
+            market:marketBet[0],
+            marketId: marketId,
+            eventId: eventId
+        }
+
+        // save if unique
+        var LogMarkets = require("../models/LogMarket");
+        LogMarkets.dataset.count({"logMarket.eventId": eventId}, function (err, count){ 
+            if (count > 0) {
+                // market already exist
+            } else {
+                var LogMarket = require("../models/LogMarket").newDataset(finishedMarketBet);
+                LogMarket.save(function(err, saveResp) {
+                    if (err) {
+                        console.log("ERROR writing LogMarket to DB");                        
+                    } 
+                    // console.log("MARKET SAVED: " + saveResp.logMarket.eventId)
+                });
+            }
+        });
+
+    })
+    .on('error', function(e) {
+        console.log("CANNOT GET SINGLE MARKET BET LOGS");
+    });
+}
+
+// ####################################################################################
+
 function saveNewGame(status) {
     // check if game not already exist
     var LogGames = require("../models/LogGame");
@@ -277,7 +315,7 @@ function logMarketBet(marketId, gameStatus, domainMrGold, isStatusLog) {
             } 
         });
         console.log("CANNOT GET MARKET BET LOGS");
-    });;
+    });
 }
 
 // ####################################################################################
@@ -315,6 +353,14 @@ function logSoccerGames(currentStatuses, domainMrGold) {
 
     // loop current statuses (main loop)
     for (var i in currentStatuses) {
+
+        // LOG SINGLE MARKET AT THE END ----------------------------
+
+        if (currentStatuses[i].state.timeElapsed >= conf.soccer.timeCollectMarketLog) {
+            saveSingleMarketLog(currentStatuses[i].marketId, currentStatuses[i].eventId, domainMrGold)
+        }
+
+        // ---------------------------------------------------------
         
         // LOG EXISTING GAMES -----------------------------
         if (prevEventIds.includes(currentStatuses[i].eventId)) {
@@ -390,6 +436,7 @@ function logSoccerGames(currentStatuses, domainMrGold) {
     }
 
     // make sure prevStatuses and prevEventIds left clean
+    // console.log(currentEventIds)    
     // console.log("current = prevEventIds = prevDedupedStatuses < prevStatuses")
     // console.log(
     //     currentEventIds.length + " = " +

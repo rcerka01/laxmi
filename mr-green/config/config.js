@@ -25,7 +25,8 @@ var test = {
         password: secret.testDb.password
     },
     soccer: {
-        bid: 5,
+        timeCollectMarketLog: 88,        
+        bid: 2,
         elapsedTime: 80,
         scoreHigher: 2,
         version: "test"
@@ -57,7 +58,8 @@ var live = {
         password: secret.db.password
     },
     soccer: {
-        bid: 5,
+        timeCollectMarketLog: 88,
+        bid: 2,
         elapsedTime: 80,
         scoreHigher: 2,
         version: "v1.4"
