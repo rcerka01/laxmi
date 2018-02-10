@@ -179,7 +179,7 @@ function saveSingleMarketLog(marketId, eventId, domainMrGold) {
                 var LogMarket = require("../models/LogMarket").newDataset(finishedMarketBet);
                 LogMarket.save(function(err, saveResp) {
                     if (err) {
-                        console.log("ERROR writing LogMarket to DB");                        
+                        console.log("ERROR writing LogMarket to DB: " + err);                        
                     } 
                     // console.log("MARKET SAVED: " + saveResp.logMarket.eventId)
                 });
@@ -188,7 +188,7 @@ function saveSingleMarketLog(marketId, eventId, domainMrGold) {
 
     })
     .on('error', function(e) {
-        console.log("CANNOT GET SINGLE MARKET BET LOGS");
+        console.log("CANNOT GET SINGLE MARKET BET LOGS: " + e);
     });
 }
 
@@ -205,7 +205,7 @@ function saveNewGame(status) {
             var LogGame = require("../models/LogGame").newDataset(status);
             LogGame.save(function(err, saveResp) {
                 if (err) {
-                    console.log("ERROR writing LogGame to DB");                        
+                    console.log("ERROR writing LogGame to DB: " + err);                        
                 } 
                 // console.log("GAME SAVED: " + saveResp.logGame.eventId)
             });
@@ -286,7 +286,7 @@ function logMarketBet(marketId, gameStatus, domainMrGold, isStatusLog) {
             var LogStatus = require("../models/LogStatus").newDataset(status);
             LogStatus.save(function(err) {
                 if (err) {
-                    console.log("ERROR writing LogStatus to DB");                        
+                    console.log("ERROR writing LogStatus to DB: " + err);                        
                 } 
             });
 
@@ -300,7 +300,7 @@ function logMarketBet(marketId, gameStatus, domainMrGold, isStatusLog) {
                 var LogResult = require("../models/LogResult").newDataset(marketBet);
                 LogResult.save(function(err) {
                     if (err) {
-                        console.log("ERROR writing LogResult to DB");                        
+                        console.log("ERROR writing LogResult to DB: " + err);                        
                     } 
                 });
             }
@@ -311,7 +311,7 @@ function logMarketBet(marketId, gameStatus, domainMrGold, isStatusLog) {
         var LogStatus = require("../models/LogStatus").newDataset(gameStatus);
         LogStatus.save(function(err) {
             if (err) {
-                console.log("ERROR writing LogStatus to DB");                        
+                console.log("ERROR writing LogStatus to DB (without marketBetLog): " + err);                        
             } 
         });
         console.log("CANNOT GET MARKET BET LOGS");
