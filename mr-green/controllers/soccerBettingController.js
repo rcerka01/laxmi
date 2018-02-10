@@ -11,7 +11,7 @@ function placeBet(domainMrGold, eventId, marketId, name, elapsedTime) {
         .end(function (marketCatalogueResponse) {
             
             // if have data
-            if (marketCatalogueResponse.body[0] !== 'undefined') {
+            if (marketCatalogueResponse.body[0]) {
                           
                 // for final output
                 var eventName = "";
