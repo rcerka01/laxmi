@@ -10,7 +10,7 @@ var fs = require('fs')
 var json = { username: conf.user.username, password: conf.user.password }
 
 var options = {
-  url: 'https://identitysso.betfair.com/api/certlogin',
+  url: 'https://identitysso-cert.betfair.com/api/certlogin',
   method: "POST",
   form: json,
   json: true,
