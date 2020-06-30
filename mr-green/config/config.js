@@ -3,9 +3,10 @@ var secret = require("./secret");
 var config = {
     app: {
         live: true, 
+        log: false,
         port: 3002,
         updateTimes: {
-            seconds: [5]
+            seconds: [5,35]
         }
     },
     mrGold: {
@@ -27,11 +28,11 @@ var config = {
         password: secret.db.password
     },
     soccer: {
-        timeCollectMarketLog: 88,
+       // timeCollectMarketLog: 88,
         bid: 2,
-        elapsedTime: 80,
+        elapsedTime: 77,
         scoreHigher: 2,
-        version: "v1.5"
+        version: "2.0.0"
     }
 }
 

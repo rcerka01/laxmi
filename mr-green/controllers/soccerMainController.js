@@ -2,8 +2,7 @@ var schedule = require('node-schedule');
 var unirest = require('unirest');
 var conf = require("../config/config");
 var soccerEvents = require("./soccerEventController");
-var mainLoggs = require("./mainLoggController");
-//var soccerLoggs = require("./soccerLoggController");
+// var mainLoggs = require("./mainLoggController");
 var util = require("./utilities");
 
 const domainMrGold = conf.mrGold.protocol + "://" + conf.mrGold.host + ":" + conf.mrGold.port
@@ -15,25 +14,25 @@ rule.second = conf.app.updateTimes.seconds;
 var times = 0;
 var version = 0;
 
+const log = conf.app.log;
+  
 function updateSoccerGames(times) {
 
+    // log
+    if (log) { console.log("\nIteration: " + times + "."); }
+
     // LOGGING CHANGES (eventualy can be moved somewhere more appropirate)
-    mainLoggs.loggAccountStatus(domainMrGold);
+    // mainLoggs.loggAccountStatus(domainMrGold);
 
     unirest.get(domainMrGold + '/api/listInPlaySoccerEvents')
             .end(function (gamesInPlayResponse) {
 
-                // first iteration, detect version (restart)                              
-                if (times == 1) {
-                    console.log("first iteration after restart")
-                    version = 0 // at the moment there is no need to detect it
-                }
+                // log
+                if (log) { console.log("Iteration: " + times +". Main controller. Got in-play soccer events from MR GOLD api"); }
 
-                // CATCING CONDITIONS
-                soccerEvents.catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold);
+                // Pass in-play soccer events to soccer controller
+                soccerEvents.catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, times);
 
-                // LOGGING CHANGES
-                // soccerLoggs.logSoccerEvents(gamesInPlayResponse, times, version);
             })
             .on('error', function(e) {
                 console.log("Error rerieving listInPlaySoccerEvents from Mr Grold API: " + e.message);
@@ -41,6 +40,16 @@ function updateSoccerGames(times) {
 }
 
 module.exports = { run: function(app) { 
+
+    var startTime = new Date().toLocaleString();
+
+    app.set("view engine", "ejs");
+    app.get("/", function(req, res) {
+        res.render("front", { times: times, start:startTime });
+    });
+
+    console.log("START");
+
     schedule.scheduleJob(rule, function() {
         times++;
         updateSoccerGames(times);
