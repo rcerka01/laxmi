@@ -8,7 +8,7 @@ module.exports = {
     },
     user: {
         apiKey: secret.apiKey,
-        username: "raitis.cerkasovs@gmail.com",
+        username: "cerkar01",                         
         password: secret.password,
         cert: {
             private: "client-2048.key",
