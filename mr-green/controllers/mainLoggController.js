@@ -1,22 +1,24 @@
 var unirest = require('unirest');
 var conf = require("../config/config");
 
+const log = conf.app.log;
+
 // PRIVATE FUNCTIONS ####################################################################################
 
-function updateAccountsStatus(currentStatus) {
+function updateAccountsStatus(currentStatus, times) {
 
     // get latest
-    var LogAccounts = require("../models/LogAccount").dataset;
-    LogAccounts.findOne({}, {}, { sort: { 'logAccount.created_at' : -1 } }, function(err, prevStatus) {
+    var Accounts = require("../models/Account").dataset;
+    Accounts.findOne({}, {}, { sort: { 'account.created_at' : -1 } }, function(err, prevStatus) {
 
         try {
             var prevStatusComp = {
-                available_to_bet: prevStatus.logAccount.available_to_bet,
-                commision: prevStatus.logAccount.commision,
-                exposure: prevStatus.logAccount.exposure,
-                exposure_limit: prevStatus.logAccount.exposure_limit,
-                discount: prevStatus.logAccount.discount,
-                points: prevStatus.logAccount.points
+                available_to_bet: prevStatus.account.available_to_bet,
+                commision: prevStatus.account.commision,
+                exposure: prevStatus.account.exposure,
+                exposure_limit: prevStatus.account.exposure_limit,
+                discount: prevStatus.account.discount,
+                points: prevStatus.account.points
             };
         } catch (e) {
             var prevStatusComp = ""; 
@@ -29,15 +31,16 @@ function updateAccountsStatus(currentStatus) {
             currentStatus.created_at = new Date();
 
             // save
-            var LogAccount = require("../models/LogAccount").newDataset(currentStatus);
-            LogAccount.save(function(err, saveResp) {
+            var Account = require("../models/Account").newDataset(currentStatus);
+            Account.save(function(err, saveResp) {
                 if (err) {
                     console.log("ERROR writing LogAccount to DB: " + err);                        
                 } 
-                // console.log("ACCOUNT STATUS SAVED: " + saveResp.logAccount.created_at)
+                
+                if (log) { console.log("Iteration: " + times + ". New account state saved: " + saveResp.account.created_at); }
             });        
        } else {
-           // console.log("ACCOUNT NOT CHANGED");
+           if (log) { console.log("Iteration: " + times + ". Account state not changed"); }
        }
 
     });
@@ -45,12 +48,12 @@ function updateAccountsStatus(currentStatus) {
 
 // ####################################################################################
 
-function loggAccountStatus(domainMrGold) {
+function loggAccountStatus(domainMrGold, times) {
     unirest.get(domainMrGold + '/api/getFunds')
         .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
         .end(function (accountResponse) {
             var accountStatus = accountResponse.body;
-            updateAccountsStatus(accountStatus);
+            updateAccountsStatus(accountStatus, times);
         })
         .on('error', function(e) {
             console.log("CANNOT GET ACCOUNT STATUS: " + e);

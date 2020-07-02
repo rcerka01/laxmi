@@ -11,53 +11,61 @@ mongoose.connect("mongodb://" + dbLogin + ":" + dbPassword + dbDomain + dbName, 
 
 var Schema = mongoose.Schema;
 
-var actionSchema = new Schema({
-    date: Date,
-    gameName: String,
-    vinner: String,
+var betSchema = new Schema({
     eventId: String,
+    date: Date,
     marketId: String,
     selectionId: String,
+    sum: String,
+    type: String,
+    price: Number,
+    gameName: String,
+    placedOn: String,
     elapsedTime: Number,
-    back: Number,
-    lay: Number,
-    results: String,
     betStatus: Schema.Types.Mixed,
     comment: String,
-    version: String
+    version: String,
+    isLive: Boolean,
+    gameStatus: String,
+    score: Schema.Types.Mixed
 });
 
-var Action = mongoose.model("Action", actionSchema);
+var Bet = mongoose.model("Bet", betSchema);
 
 module.exports = {
-    dataset: Action,
+    dataset: Bet,
     newDataset: function (
-        date,
-        gameName,
-        vinner,
         eventId,
+        date,
         marketId,
         selectionId,
+        sum,
+        type,
+        price,
+        gameName,
+        placedOn,
         elapsedTime,
-        back,
-        lay,
-        results,
         betStatus,
         comment,
-        version) { return Action({
-            date: date,
-            gameName: gameName,
-            vinner: vinner,
+        version,
+        isLive,
+        gameStatus,
+        score) { return Bet({
             eventId: eventId,
+            date: date,
             marketId: marketId,
             selectionId: selectionId,
+            sum: sum,
+            type: type,
+            price: price,
+            gameName: gameName,
+            placedOn: placedOn,
             elapsedTime: elapsedTime,
-            back: back,
-            lay: lay,
-            results: results,
             betStatus: betStatus,
             comment: comment,
-            version:version
-        })
+            version:version,
+            isLive: isLive,
+            gameStatus: gameStatus,
+            score: score})
     }
 }
