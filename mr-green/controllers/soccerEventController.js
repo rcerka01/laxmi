@@ -1,8 +1,9 @@
 var unirest = require('unirest');
 var conf = require("../config/config");
 var betting = require("./soccerBettingController");
-var Action = require("../models/Action").dataset
-var soccerLoggs = require("./soccerLoggController");
+var bet = require("../models/Bet");
+// var soccerLoggs = require("./soccerLoggController");
+var vishnu = require("../models/Vishnu");
 
 var placedBets = [];
 const live = conf.app.live;
@@ -35,10 +36,6 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
 
                 var vishnuEventTimeline = eventTimelinesResponse.body;
 
-                // LOG GAMES ---------------------------------- >
-                //soccerLoggs.logSoccerGames(games, domainMrGold);
-                // -------------------------------------------- >
-
                 // to clean up placed bets
                 var prevEventIds = [];
 
@@ -70,6 +67,27 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                             + ". Soccer controller. Event id " + vishnuEventTimeline[i].eventId + " had undefined field(s) in VISHNU response"); }
                     }
 
+                    var conditions = { eventId: vishnuEventTimeline[i].eventId }
+
+                    // write game statusses from Vishnu in DB
+                    vishnu.dataset.findOneAndUpdate(conditions, vishnuEventTimeline[i], {upsert: true}, function(err) {
+                        if (err) {
+                            console.log("ERROR writing Vishnu to game log DB: " + err);                        
+                        throw err;
+                        } 
+                    });
+
+                    // if compleate, write game results for all its bets
+                    if  (vishnuEventTimeline[i].status == "COMPLETE") {
+                        console.log("HAPPEN")
+                        bet.dataset.updateMany(conditions, {gameStatus: vishnuEventTimeline[i].status, score: vishnuEventTimeline[i].score}, {upsert: false}, function(err) {
+                            if (err) {
+                                console.log("ERROR writing Vishnu to bet log DB: " + err);                        
+                            throw err;
+                            } 
+                        });
+                    }
+
                     // if so, run
                     if (run) {
                         // not already bet 
@@ -91,7 +109,7 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                                     // place bet if live env
                                     if (live) {
 
-                                       betting.placeBet(domainMrGold, vishnuEventTimeline[i].eventId, vishnuEventTimeline[i].score.home.name );
+                                       betting.placeBet(domainMrGold, vishnuEventTimeline[i].eventId, vishnuEventTimeline[i].score.home.name, vishnuEventTimeline[i].timeElapsed);
                                        
                                        //log
                                        if (log) { console.log("Iteration: " + times
@@ -108,7 +126,7 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                                     // place bet
                                     if (conf.app.live) {
 
-                                        betting.placeBet(domainMrGold, vishnuEventTimeline[i].eventId, vishnuEventTimeline[i].score.away.name);
+                                        betting.placeBet(domainMrGold, vishnuEventTimeline[i].eventId, vishnuEventTimeline[i].score.away.name, vishnuEventTimeline[i].timeElapsed);
                                         
                                         //log
                                         if (log) { console.log("Iteration: " + times

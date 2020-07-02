@@ -2,7 +2,7 @@ var schedule = require('node-schedule');
 var unirest = require('unirest');
 var conf = require("../config/config");
 var soccerEvents = require("./soccerEventController");
-// var mainLoggs = require("./mainLoggController");
+var mainLoggs = require("./mainLoggController");
 var util = require("./utilities");
 
 const domainMrGold = conf.mrGold.protocol + "://" + conf.mrGold.host + ":" + conf.mrGold.port
@@ -21,8 +21,8 @@ function updateSoccerGames(times) {
     // log
     if (log) { console.log("\nIteration: " + times + "."); }
 
-    // LOGGING CHANGES (eventualy can be moved somewhere more appropirate)
-    // mainLoggs.loggAccountStatus(domainMrGold);
+    // logging changes in acciount
+    mainLoggs.loggAccountStatus(domainMrGold, times);
 
     unirest.get(domainMrGold + '/api/listInPlaySoccerEvents')
             .end(function (gamesInPlayResponse) {

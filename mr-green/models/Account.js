@@ -11,11 +11,11 @@ mongoose.connect("mongodb://" + dbLogin + ":" + dbPassword + dbDomain + dbName, 
 
 var Schema = mongoose.Schema;
 
-var statusSchema = new Schema({logAccount: Schema.Types.Mixed});
+var statusSchema = new Schema({account: Schema.Types.Mixed});
 
-var LogAccount = mongoose.model("LogAccount", statusSchema);
+var Account = mongoose.model("Account", statusSchema);
 
 module.exports = {
-    dataset: LogAccount,
-    newDataset: function (logAccount) { return LogAccount({logAccount: logAccount}) }
+    dataset: Account,
+    newDataset: function (account) { return Account({account: account}) }
 }

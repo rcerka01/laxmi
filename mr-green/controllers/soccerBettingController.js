@@ -1,10 +1,10 @@
 var unirest = require('unirest');
-//var action = require("../models/Action").newDataset;
+var bet = require("../models/Bet").newDataset;
 var conf = require("../config/config");
 
 const log = conf.app.log;
 
-function placeBet(domainMrGold, eventId, name) {
+function placeBet(domainMrGold, eventId, name, elapsedTime) {
 
     // log
     if (log) { console.log(name + " PLACING BET."); }
@@ -72,8 +72,8 @@ function placeBet(domainMrGold, eventId, name) {
                                                     laySize = listRunnerBetResponse.body[0].item.runners[0].ex.availableToLay[0].size;                    
                                                 }
 
- /******************************    PLACE BET AND SAVE ACTION    *******************************/ 
- // it just do it once, must do repitedly if short in credit 
+ /******************************    PLACE BET AND SAVE IN DB    *******************************/ 
+ // it just do it once, must do repitedly if short in credit or unsuccessful
                                                 var sum = conf.soccer.bid;
 
                                                 // max bet can be smaller than bet size in config
@@ -94,30 +94,33 @@ function placeBet(domainMrGold, eventId, name) {
                                                     // log
                                                     if (log) console.log(name + " PLACING BET. BACK bet placed. " + instructionReports + ". " + detail);
                                                 
-                                                    // action(
-                                                    //     date = Date(),
-                                                    //     gameName = eventName,
-                                                    //     vinner = name,
-                                                    //     eventId = eventId,
-                                                    //     marketId = marketId,
-                                                    //     selectionId = selectionId,
-                                                    //     elapsedTime = elapsedTime,
-                                                    //     back = back,
-                                                    //     lay = lay,
-                                                    //     results = "",
-                                                    //     betStatus = {
-                                                    //         "status": body.status,
-                                                    //         "instructionReports": instructionReports,
-                                                    //         "detail": detail
-                                                    //     },
-                                                    //     comment = "",
-                                                    //     version =  conf.soccer.version
-                                                    // ).save(function(err) {
-                                                    //     if (err) {
-                                                    //         console.log("ERROR writing ACTION to DB: " + err);                        
-                                                    //         throw err;
-                                                    //     } 
-                                                    // });
+                                                    // write in DB
+                                                    bet(    
+                                                        eventId = eventId,
+                                                        date = Date(),
+                                                        marketId = marketId,
+                                                        selectionId = selectionId,
+                                                        sum = backSum,
+                                                        type = "back",
+                                                        price = backPrice,
+                                                        gameName = eventName,
+                                                        placedOn = name,
+                                                        elapsedTime = elapsedTime,
+                                                        betStatus = {
+                                                            "status": body.status,
+                                                            "instructionReports": instructionReports,
+                                                            "detail": detail
+                                                        },
+                                                        comment = "",
+                                                        version =  conf.soccer.version,
+                                                        isLive = true,
+                                                        gameStatus = "IN_PLAY"
+                                                    ).save(function(err) {
+                                                        if (err) {
+                                                            console.log("ERROR writing ACTION to DB: " + err);                        
+                                                            throw err;
+                                                        } 
+                                                    });
                                                 });
 
 /************************************************************************************************/                     
