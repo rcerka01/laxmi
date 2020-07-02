@@ -35,7 +35,7 @@ module.exports = {
         timeElapsed,
         elapsedRegularTime,
         updateDetails,
-        status,
+        status
    ) { return Vishnu({
             eventId: eventId,
             datet: datet, 
