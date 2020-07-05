@@ -2,7 +2,6 @@ var unirest = require('unirest');
 var conf = require("../config/config");
 var betting = require("./soccerBettingController");
 var bet = require("../models/Bet");
-// var soccerLoggs = require("./soccerLoggController");
 var vishnu = require("../models/Vishnu");
 
 var placedBets = [];
@@ -156,50 +155,6 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                         var finishedItem = placedBets[b];
                         placedBets = placedBets.filter(item => item !== finishedItem);
 
-                        // retrieve from db by using placedBets array value
-                        // Action.findOne({"eventId": finishedItem}, "marketId results", function (err, action) {
-                        //     if (err) console.log("Error retrieve Action from DB to write result: " + err);
-
-                        //     if (action) {
-                        //         unirest.get(domainMrGold + '/api/listMarketBet/'+action.marketId)
-                        //             .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
-                        //             .end(function (listMarketBetResponse) {
-
-                        //                 // checks for response from listMarketBet
-                        //                 if (listMarketBetResponse.body[0] !== 'undefined') {
-                        //                     if (listMarketBetResponse.body[0].item !== 'undefined') {
-                        //                         if (listMarketBetResponse.body[0].item.runners !== 'undefined') {
-                        //                             if (listMarketBetResponse.body[0].item.runners) {
-                                                        
-                        //                                 var runners = listMarketBetResponse.body[0].item.runners;
-                                                        
-                        //                                 // loop trough 3 result variants
-                        //                                 for (var i in runners){
-                        //                                     if (runners[i].status == "WINNER") {
-
-                        //                                         // update db field
-                        //                                         action.results = "WINNER: " + runners[i].selectionId;
-                                                            
-                        //                                         // write to DB
-                        //                                         action.save(function(err) {
-                        //                                             if (err) {
-                        //                                                 console.log("ERROR writing update ACTION to DB");                        
-                        //                                             } 
-                        //                                         });
-                        //                                     // if vinner
-                        //                                     }
-                        //                                 // loop
-                        //                                 }
-                        //                             // checks                                                   
-                        //                             }
-                        //                         }
-                        //                     }
-                        //                 }
-                        //             // unirest
-                        //             });
-                        //     // if action defind
-                        //     }
-                        // })
                     }                            
                 }
 
