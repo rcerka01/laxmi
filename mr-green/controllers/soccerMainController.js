@@ -3,7 +3,6 @@ var unirest = require('unirest');
 var conf = require("../config/config");
 var soccerEvents = require("./soccerEventController");
 var mainLoggs = require("./mainLoggController");
-var util = require("./utilities");
 
 const domainMrGold = conf.mrGold.protocol + "://" + conf.mrGold.host + ":" + conf.mrGold.port
 const domainVishnu = conf.vishnu.protocol + "://" + conf.vishnu.host + ":" + conf.vishnu.port

@@ -3,7 +3,7 @@ var secret = require("./secret");
 var config = {
     app: {
         live: true, 
-        log: false,
+        log: true,
         port: 3002,
         updateTimes: {
             seconds: [5,35]
