@@ -44,12 +44,16 @@ function bodyCatalogueList(eventIds) { return {
     maxResults: 100
 }}
 
-function bodyMarketBookList(marketIds) { return { 
-    marketIds: [marketIds],
-    priceProjection: {
-        priceData: ["EX_BEST_OFFERS", "EX_TRADED"],
-        virtualise: true
-}}}
+function bodyMarketBookList(marketIds) {
+    var marketIdsArr = marketIds.split(",")
+    return { 
+        marketIds: marketIdsArr,
+        priceProjection: {
+            priceData: ["EX_BEST_OFFERS", "EX_TRADED"],
+            virtualise: true
+        }
+    }
+}
 
 function bodyRunnerBookList(marketId, selectionId) { return { 
     marketId: marketId,

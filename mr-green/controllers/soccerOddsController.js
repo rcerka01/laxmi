@@ -20,14 +20,21 @@ function updateOddChanges(games, gamesInPlay, domainVishnu, domainMrGold, times)
     unirest.get(domainMrGold + '/api/listCatalogue/' + eventIds)
         .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
         .end(function (marketCatalogueResponse) {
-            
 
-            console.log(marketCatalogueResponse.body)
             // if have data
             if (marketCatalogueResponse.body.length > 0) {
 
                 // log
-                if (log) console.log("Iteration: " + times + ". Soccer Odds Controller. Retrieved market data: " + marketCatalogueResponse.body); 
+                if (log) console.log("Iteration: " + times + ". Soccer Odds Controller. Retrieved market data for " + marketCatalogueResponse.body.length + " items"); 
+            
+                var marketCatalogue = marketCatalogueResponse.body
+
+                for (var i in marketCatalogue[i]) {
+
+                    
+
+                }
+            
             }
         });
 
