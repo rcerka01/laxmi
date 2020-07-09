@@ -49,7 +49,7 @@ function bodyMarketBookList(marketIds) {
     return { 
         marketIds: marketIdsArr,
         priceProjection: {
-            priceData: ["EX_BEST_OFFERS", "EX_TRADED"],
+            priceData: ["EX_BEST_OFFERS"],
             virtualise: true
         }
     }

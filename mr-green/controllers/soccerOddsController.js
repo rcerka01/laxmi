@@ -7,11 +7,9 @@ function updateOddChanges(games, gamesInPlay, domainVishnu, domainMrGold, times)
 
     // retrieve all event Ids passed from main controller
     var eventIds = "";
-    var eventIdsArr = [];
 
     for(var i in games) {
         eventIds = eventIds + games[i].id + ",";
-        eventIdsArr.push(games[i].id)
     }
 
     if (log) console.log("Iteration: " + times + ". Soccer Odds controller. Retrieved event ids: " + eventIds); 
@@ -29,11 +27,13 @@ function updateOddChanges(games, gamesInPlay, domainVishnu, domainMrGold, times)
             
                 var marketCatalogue = marketCatalogueResponse.body
 
-                for (var i in marketCatalogue[i]) {
-
-                    
-
+                // retrieve all market Ids
+                var marketIds = "";
+                for(var i in marketCatalogue) {
+                    marketIds = marketIds + marketCatalogue[i].item.marketId + ",";
                 }
+
+                //console.log(marketIds);
             
             }
         });
