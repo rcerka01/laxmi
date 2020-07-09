@@ -78,7 +78,6 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
 
                     // if compleate, write game results for all its bets
                     if  (vishnuEventTimeline[i].status == "COMPLETE") {
-                        console.log("HAPPEN")
                         bet.dataset.updateMany(conditions, {gameStatus: vishnuEventTimeline[i].status, score: vishnuEventTimeline[i].score}, {upsert: false}, function(err) {
                             if (err) {
                                 console.log("ERROR writing Vishnu to bet log DB: " + err);                        
