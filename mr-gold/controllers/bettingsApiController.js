@@ -136,14 +136,30 @@ module.exports = function(app, token) {
     // ****************************************************
     // * GET List Market Bet (by passing market id)
     // ****************************************************
-    app.get("/api/listMarketBet/:marketid", function(req, res) {
+   
+    app.get("/api/listMarketBet/:marketid/:eventid/:eventname/:countryid/:competition", function(req, res) {
         function callback(error, response, body) {
             if (!error && response.statusCode == 200) {
-                
+
+                var eventIds = req.params.eventid;
+                var eventNames = req.params.eventname;
+                var eventCountryIds = req.params.countryid;
+                var competitions = req.params.competition;
+
+                var eventIdsArr = eventIds.split(",");
+                var eventNamesArr = eventNames.split(",");
+                var eventCountryIdsArr = eventCountryIds.split(",");
+                var competitionsArr = competitions.split(",");
+              
                 var output = [];
-                body.map(item => {                    
-                    output.push({
-                        item
+
+                body.map(function(item, i) {                    
+                    return output.push({
+                        item,
+                        eventId: eventIdsArr[i],
+                        eventName: eventNamesArr[i],
+                        eventCountryIds: eventCountryIdsArr[i],
+                        competition: competitionsArr[i]
                     })
             });
 
