@@ -29,7 +29,7 @@ function bodySocerInPlayEvents(nowIso, tomorrowIso) { return {
 
 function bodyCatalogueList(eventIds) { return { 
     filter: {
-        eventIds: [eventIds],
+        eventIds: eventIds.split(","),
         marketBettingTypes: ["ODDS"],
         marketTypeCodes: ["MATCH_ODDS"]
     },
