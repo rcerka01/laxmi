@@ -72,6 +72,21 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                                 var odds = [];
                                 for (var mr in markets) {
 
+                                    try { var back0price = markets[mr].item.runners[0].ex.availableToBack[0].price } catch (e) { var back0price = 0 };
+                                    try { var back0size = markets[mr].item.runners[0].ex.availableToBack[0].size } catch (e) { var back0size = 0 };
+                                    try { var lay0price = markets[mr].item.runners[0].ex.availableToLay[0].price } catch (e) { var lay0price = 0 };
+                                    try { var lay0size = markets[mr].item.runners[0].ex.availableToLay[0].size } catch (e) { var lay0size = 0 };
+                                    
+                                    try { var back1price = markets[mr].item.runners[1].ex.availableToBack[0].price } catch (e) { var back1price = 0 };
+                                    try { var back1size = markets[mr].item.runners[1].ex.availableToBack[0].size } catch (e) { var back1size = 0 };
+                                    try { var lay1price = markets[mr].item.runners[1].ex.availableToLay[0].price } catch (e) { var lay1price = 0 };
+                                    try { var lay1size = markets[mr].item.runners[1].ex.availableToLay[0].size } catch (e) { var lay1size = 0 };
+                                    
+                                    try { var back2price = markets[mr].item.runners[2].ex.availableToBack[0].price } catch (e) { var back2price = 0 };
+                                    try { var back2size = markets[mr].item.runners[2].ex.availableToBack[0].size } catch (e) { var back2size = 0 };
+                                    try { var lay2price = markets[mr].item.runners[2].ex.availableToLay[0].price } catch (e) { var lay2price = 0 };
+                                    try { var lay2size = markets[mr].item.runners[2].ex.availableToLay[0].size } catch (e) { var lay2size = 0 };
+                                    
                                     // form array with odds and other game stats
                                     odds.push({
                                         marketId: markets[mr].item.marketId,
@@ -79,28 +94,53 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                                         eventName: markets[mr].eventName,
                                         eventCountryIds: markets[mr].eventCountryIds,
                                         competition: markets[mr].competition,
-                                        date: new Date(),
                                         totalMatched: markets[mr].item.totalMatched,
                                         selection: [{
                                             selectionId:        markets[mr].item.runners[0].selectionId,
                                             totalRunnerMatched: markets[mr].item.runners[0].totalMatched,
-                                            back: markets[mr].item.runners[0].ex.availableToBack[0],
-                                            lay: markets[mr].item.runners[0].ex.availableToLay[0] },
+                                            back: [{
+                                                updated: new Date(),
+                                                size: back0size,
+                                                price: back0price
+                                                 }],
+                                            lay: [{
+                                                updated: new Date(), 
+                                                size: lay0size, 
+                                                price: lay0price
+                                                }]
+                                            },
                                            {
                                             selectionId:        markets[mr].item.runners[1].selectionId,
                                             totalRunnerMatched: markets[mr].item.runners[1].totalMatched,
-                                            back: markets[mr].item.runners[1].ex.availableToBack[0],
-                                            lay: markets[mr].item.runners[1].ex.availableToLay[0] },
+                                            back: [{
+                                                updated: new Date(),
+                                                size: back1size,
+                                                price: back1price
+                                                 }],
+                                            lay: [{
+                                                updated: new Date(),
+                                                size: lay1size,
+                                                price: lay1price,
+                                                 }]
+                                            },
                                            {
-                                            date: new Date(),
                                             selectionId:        markets[mr].item.runners[2].selectionId,
                                             totalRunnerMatched: markets[mr].item.runners[2].totalMatched,
-                                            back: markets[mr].item.runners[2].ex.availableToBack[0],
-                                            lay: markets[mr].item.runners[2].ex.availableToLay[0]
-                                        }]   
-                                    });
+                                            back: [{
+                                                price: back2price,
+                                                size: back2size,
+                                                updated: new Date()
+                                                }],
+                                            lay: [{
+                                                updated: new Date(),
+                                                size: lay2size,
+                                                price: lay2price
+                                                 }]
 
-                                }
+                                            }]   
+                                        });
+
+                                    }
 
                                 if (log) console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Soccer Odds Controller. " + odds.length + " items of " + marketCatalogueResponse.body.length + " formed and sent to Logg controller"); 
 

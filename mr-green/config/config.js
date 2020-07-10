@@ -4,6 +4,7 @@ var config = {
     app: {
         live: true, 
         log: false,
+        oddlog: false, 
         port: 3002,
         updateTimes: {
             seconds: [5,35]

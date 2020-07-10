@@ -24,7 +24,7 @@ function bodySocerInPlayEvents(nowIso, tomorrowIso) { return {
     filter: { 
         eventTypeIds: [ 1 ],
         inPlayOnly: true },
-    maxResults : 100 
+    maxResults : 1000 
 }}
 
 function bodyCatalogueList(eventIds) { return { 
@@ -41,7 +41,7 @@ function bodyCatalogueList(eventIds) { return {
             "RUNNER_METADATA",
             "MARKET_START_TIME"
         ],
-    maxResults: 100
+    maxResults: 1000
 }}
 
 function bodyMarketBookList(marketIds) {
