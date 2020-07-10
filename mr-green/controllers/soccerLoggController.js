@@ -60,6 +60,11 @@ function loggAccountStatus(domainMrGold, times) {
         });
 }
 
+function loggOdds(odds, times, isInPlay) {
+    if (log) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Logg controller. " + odds.length + " items recieved") }
+}
+
 module.exports = { 
-    loggAccountStatus: loggAccountStatus
+    loggAccountStatus: loggAccountStatus,
+    loggOdds: loggOdds
 }
