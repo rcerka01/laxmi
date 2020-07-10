@@ -2,7 +2,7 @@ var schedule = require('node-schedule');
 var unirest = require('unirest');
 var conf = require("../config/config");
 var soccerEvents = require("./soccerEventController");
-var mainLoggs = require("./soccerLoggController");
+var loggs = require("./soccerLoggController");
 var soccerOdds = require("./soccerOddsController");
 
 const domainMrGold = conf.mrGold.protocol + "://" + conf.mrGold.host + ":" + conf.mrGold.port
@@ -21,7 +21,7 @@ function updateSoccerGames(times) {
     if (log) { console.log("\nIteration: " + times + "."); }
 
     // logging changes in account
-    mainLoggs.loggAccountStatus(domainMrGold, times);
+    loggs.loggAccountStatus(domainMrGold, times);
 
 
     // 1. IN PLAY GAMES. STRATEGIES BASED ON GAME STATUS
