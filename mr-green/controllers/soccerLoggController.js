@@ -61,47 +61,54 @@ function updateOddsInDb(conditions, update) {
     });
 }
 
-function loggOddsPriv(odds, times, isInPlay) {
+function loggOddsPriv(data, times, isInPlay) {
 
-    var eventIds = odds.map(item => item.eventId);
+    // var eventIds = odds.map(item => item.eventId);
     // records = await vishnu.dataset.find().where("eventId").in(eventIds).exec();
 
     // get saved Vishnus
-    vishnu.dataset.find().where("eventId").in(eventIds).exec((err, results) => {
+    vishnu.dataset.find().where("eventId").in(eventIds).exec((err, dBresults) => {
 
         //var existingEventIds = results.map(result => result.eventId);
 
-        for (var i in odds) {
+        for (var i in data) {
 
-            var recordInDb = results.find(item => item.eventId == odds[i].eventId)
+            var recordInDb;
+            for (var ii in dBresults) {
+                if (dBresults[ii].eventId == data[i].eventId) {
+                    var recordInDb = dBresults[ii];
+                }
+            }
+
+            // var recordInDb = results.find(item => item.eventId == odds[i].eventId)
 
             try { 
                 var back0priceDB = recordInDb.markets[0].selection[0].back[0].price
-                var back0priceBF = odds[i].selection[0].back[0].price
+                var back0priceBF = data[i].odds[0].back[0].price
                 var lay0priceDB = recordInDb.markets[0].selection[0].lay[0].price
-                var lay0priceBF = odds[i].selection[0].lay[0].price
+                var lay0priceBF = data[i].odds[0].lay[0].price
 
                 var back1priceDB = recordInDb.markets[0].selection[1].back[0].price
-                var back1priceBF = odds[i].selection[1].back[0].price
+                var back1priceBF = data[i].odds[1].back[0].price
                 var lay1priceDB = recordInDb.markets[0].selection[1].lay[0].price
-                var lay1priceBF = odds[i].selection[1].lay[0].price
+                var lay1priceBF = data[i].odds[1].lay[0].price
 
                 var back2priceDB = recordInDb.markets[0].selection[2].back[0].price
-                var back2priceBF = odds[i].selection[2].back[0].price
+                var back2priceBF = data[i].odds[2].back[0].price
                 var lay2priceDB = recordInDb.markets[0].selection[2].lay[0].price
-                var lay2priceBF = odds[i].selection[2].lay[0].price
+                var lay2priceBF = data[i].odds[2].lay[0].price
 
                 if (back0priceDB != back0priceBF) {
                     var tempArr = recordInDb.markets[0].selection[0].back
                     tempArr.unshift({
-                        price: odds[i].selection[0].back[0].price,
-                        size: odds[i].selection[0].back[0].size,
+                        price: data[i].odds[0].back[0].price,
+                        size: data[i].odds[0].back[0].size,
                         updated: new Date()})
 
-                    var conditions = { eventId: odds[i].eventId }
+                    var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.0.back": tempArr }
 
-                    if (oddlog) { console.log("Iteration: " + times + ". Odds Back 0 price updated " + odds[i].eventId + " " + JSON.stringify(tempArr));
+                    if (oddlog) { console.log("Iteration: " + times + ". Odds Back 0 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }
@@ -109,14 +116,14 @@ function loggOddsPriv(odds, times, isInPlay) {
                 if (lay0priceDB != lay0priceBF) {
                     var tempArr = recordInDb.markets[0].selection[0].lay
                     tempArr.unshift({
-                        price: odds[i].selection[0].lay[0].price,
-                        size: odds[i].selection[0].lay[0].size,
+                        price: data[i].odds[0].lay[0].price,
+                        size: data[i].odds[0].lay[0].size,
                         updated: new Date()})
 
-                    var conditions = { eventId: odds[i].eventId }
+                    var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.0.lay": tempArr }
 
-                    //console.log("Lay 0 price updated "+ odds[i].eventId + " " + JSON.stringify(tempArr));
+                    console.log("Lay 0 price updated "+ data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }
@@ -126,14 +133,14 @@ function loggOddsPriv(odds, times, isInPlay) {
                 if (back1priceDB != back1priceBF) {
                     var tempArr = recordInDb.markets[0].selection[1].back
                     tempArr.unshift({
-                        price: odds[i].selection[1].back[0].price,
-                        size: odds[i].selection[1].back[0].size,
+                        price: data[i].odds[1].back[0].price,
+                        size: data[i].odds[1].back[0].size,
                         updated: new Date()})
 
-                    var conditions = { eventId: odds[i].eventId }
+                    var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.1.back": tempArr }
 
-                    //console.log("Back 1 price updated "+ odds[i].eventId + " " + JSON.stringify(tempArr));
+                    console.log("Back 1 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }
@@ -141,14 +148,14 @@ function loggOddsPriv(odds, times, isInPlay) {
                 if (lay1priceDB != lay1priceBF) {
                     var tempArr = recordInDb.markets[0].selection[1].lay
                     tempArr.unshift({
-                        price: odds[i].selection[1].lay[0].price,
-                        size: odds[i].selection[1].lay[0].size,
+                        price: data[i].odds[1].lay[0].price,
+                        size: data[i].odds[1].lay[0].size,
                         updated: new Date()})
 
-                    var conditions = { eventId: odds[i].eventId }
+                    var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.1.lay": tempArr }
 
-                    //console.log("Lay 1 price updated "+ odds[i].eventId + " " + JSON.stringify(tempArr));
+                    console.log("Lay 1 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }   
@@ -158,14 +165,14 @@ function loggOddsPriv(odds, times, isInPlay) {
                 if (back2priceDB != back2priceBF) {
                     var tempArr = recordInDb.markets[0].selection[2].back
                     tempArr.unshift({
-                        price: odds[i].selection[2].back[0].price,
-                        size: odds[i].selection[2].back[0].size,
+                        price: data[i].odds[2].back[0].price,
+                        size: data[i].odds[2].back[0].size,
                         updated: new Date()})
 
-                    var conditions = { eventId: odds[i].eventId }
+                    var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.2.back": tempArr }
 
-                    //console.log("Back 2 price updated " + odds[i].eventId + " " + JSON.stringify(tempArr));
+                    console.log("Back 2 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }
@@ -173,14 +180,14 @@ function loggOddsPriv(odds, times, isInPlay) {
                 if (lay2priceDB != lay2priceBF) {
                     var tempArr = recordInDb.markets[0].selection[2].lay
                     tempArr.unshift({
-                        price: odds[i].selection[2].lay[0].price,
-                        size: odds[i].selection[2].lay[0].size,
+                        price: data[i].odds[2].lay[0].price,
+                        size: data[i].odds[2].lay[0].size,
                         updated: new Date()})
 
-                    var conditions = { eventId: odds[i].eventId }
+                    var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.2.lay": tempArr }
 
-                    //console.log("Lay 2 price updated " + odds[i].eventId + " " + JSON.stringify(tempArr));
+                    console.log("Lay 2 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }
@@ -189,25 +196,25 @@ function loggOddsPriv(odds, times, isInPlay) {
             } catch (e) { 
 
                 var market = { 
-                    marketId: odds[i].marketId,
+                    marketId: data[i].marketId,
                     marketName: "Match Odds",
-                    lastOddsUpdated: odds[i].date,
-                    totalMatched: odds[i].totalMatched,
-                    lastUpdated: new Date(),
-                    selection: odds[i].selection
+                    totalMatched: data[i].totalMatched,
+                    created: new Date(),
+                    selectionIds: data.selectionIds,
+                    selection: data[i].odds
                 };
 
                 var update = {
-                    eventName: odds[i].eventName,
-                    country: odds[i].eventCountryIds,
-                    competition: odds[i].competition,
-                    runners: odds[i].runners,
+                    eventId: data[i].eventId,
+                    eventName: data[i].eventName,
+                    country: data[i].eventCountryIds,
+                    competition: data[i].competition,
                     markets: [market]
                 }
 
-                var conditions = { eventId: odds[i].eventId }
+                var conditions = { eventId: data[i].eventId }
 
-                //console.log("Market updated fully")
+                console.log("Market updated fully")
 
                 updateOddsInDb(conditions, update);
             }
@@ -235,9 +242,9 @@ function loggAccountStatus(domainMrGold, times) {
         });
 }
 
-function loggOdds(odds, times, isInPlay) {
-    if (oddlog) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Logg controller. " + odds.length + " items recieved") }
-    loggOddsPriv(odds, times, isInPlay);
+function loggOdds(data, times, isInPlay) {
+    if (oddlog) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Logg controller. " + data.length + " items recieved") }
+    loggOddsPriv(data, times, isInPlay);
 }
 
 module.exports = { 

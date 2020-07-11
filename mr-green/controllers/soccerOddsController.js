@@ -35,7 +35,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                     return R;
                 }
 
-                // for Betfair listMarketBook endpoine be able to consume markets are divided in chunks by 20
+                // for Betfairs listMarketBook endpoint be able to consume, markets are divided in chunks by 20
                 var  marketCatalogueDiv = chunk(marketCatalogue, 20);
 
                 for (var i in marketCatalogueDiv) {
@@ -47,22 +47,22 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                     var eventCountrycodes = "";
                     var competitions = "";
                     var selections = "";
-
-                    // game stats (eventid, marketid, eventname etc.) is impossible to retrieve in listMarketBook endpint
+                    
+                    // game stats (eventid, marketid, eventname etc.) is not present in listMarketBook endpint
                     // to access them we pass and rcieve them manually
                     for (var ii in marketCatalogueDiv[i]) {
                         var runnersStr = "";
                         var runners = marketCatalogueDiv[i][ii].item.runners;
-                        for (var ii in runners) {
-                            runnersStr = runnersStr + runners[ii].selectionId + "---" + runners[ii].runnerName + ","       
+                        for (var iii in runners) {
+                            runnersStr = runnersStr + runners[iii].selectionId + "+++" + runners[iii].runnerName + "---"       
                         }
 
-                        selections = selections + runnersStr;
-                        marketIds = marketIds + marketCatalogueDiv[i][ii].item.marketId + ",";
-                        eventIds = eventIds + marketCatalogueDiv[i][ii].item.event.id + ",";
-                        eventNames = eventNames + marketCatalogueDiv[i][ii].item.event.name + ",";
-                        eventCountrycodes = eventCountrycodes + marketCatalogueDiv[i][ii].item.event.countryCode + ",";
-                        competitions = competitions + marketCatalogueDiv[i][ii].item.competition.name + ",";
+                        selections = selections + runnersStr + ",";
+                        try { marketIds = marketIds + marketCatalogueDiv[i][ii].item.marketId + ","; } catch(e) { marketIds = marketIds + ","; }
+                        try { eventIds = eventIds + marketCatalogueDiv[i][ii].item.event.id + ","; } catch(e) { eventIds = eventIds + ","; }
+                        try { eventNames = eventNames + marketCatalogueDiv[i][ii].item.event.name + ","; } catch(e) { eventNames = eventNames + ","; }
+                        try { eventCountrycodes = eventCountrycodes + marketCatalogueDiv[i][ii].item.event.countryCode + ","; } catch(e) { eventCountrycodes = eventCountrycodes + ","; }
+                        try { competitions = competitions + marketCatalogueDiv[i][ii].item.competition.name + ","; } catch(e) { competitions = competitions + ","; }
                     }
 
                     // RETRIEVE ODDS
@@ -78,7 +78,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
 
                                 var markets = marketResponses.body;
 
-                                var odds = [];
+                                var dataOut = [];
                                 for (var mr in markets) {
 
                                     try { var back0price = markets[mr].item.runners[0].ex.availableToBack[0].price } catch (e) { var back0price = 0 };
@@ -97,15 +97,15 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                                     try { var lay2size = markets[mr].item.runners[2].ex.availableToLay[0].size } catch (e) { var lay2size = 0 };
                                     
                                     // form array with odds and other game stats
-                                    odds.push({
+                                    dataOut.push({
                                         marketId: markets[mr].item.marketId,
-                                        eventId: markets[mr].eventId,
-                                        eventName: markets[mr].eventName,
-                                        eventCountryIds: markets[mr].eventCountryIds,
-                                        competition: markets[mr].competition,
+                                        eventId: markets[mr].parameters.eventId,
+                                        eventName: markets[mr].parameters.eventName,
+                                        eventCountryIds: markets[mr].parameters.eventCountryIds,
+                                        competition: markets[mr].parameters.competition,
                                         totalMatched: markets[mr].item.totalMatched,
-                                        runners: markets[mr].item.runners,
-                                        selection: [{
+                                        selectionIds: markets[mr].parameters.selections,
+                                        odds: [{
                                             selectionId:        markets[mr].item.runners[0].selectionId,
                                             totalRunnerMatched: markets[mr].item.runners[0].totalMatched,
                                             back: [{
@@ -137,9 +137,9 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                                             selectionId:        markets[mr].item.runners[2].selectionId,
                                             totalRunnerMatched: markets[mr].item.runners[2].totalMatched,
                                             back: [{
-                                                price: back2price,
+                                                updated: new Date(),
                                                 size: back2size,
-                                                updated: new Date()
+                                                price: back2price,
                                                 }],
                                             lay: [{
                                                 updated: new Date(),
@@ -155,7 +155,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                                 if (log) console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Soccer Odds Controller. " + odds.length + " items of " + marketCatalogueResponse.body.length + " formed and sent to Logg controller"); 
 
                                 //##### send odds and other game stats to logg controller
-                                //loggs.loggOdds(odds, times, isInPlay);
+                                //loggs.loggOdds(dataOut, times, isInPlay);
                                 //#####
 
                            });
