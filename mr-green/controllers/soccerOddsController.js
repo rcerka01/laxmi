@@ -46,10 +46,18 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                     var eventNames = "";
                     var eventCountrycodes = "";
                     var competitions = "";
+                    var selections = "";
 
                     // game stats (eventid, marketid, eventname etc.) is impossible to retrieve in listMarketBook endpint
                     // to access them we pass and rcieve them manually
                     for (var ii in marketCatalogueDiv[i]) {
+                        var runnersStr = "";
+                        var runners = marketCatalogueDiv[i][ii].item.runners;
+                        for (var ii in runners) {
+                            runnersStr = runnersStr + runners[ii].selectionId + "---" + runners[ii].runnerName + ","       
+                        }
+
+                        selections = selections + runnersStr;
                         marketIds = marketIds + marketCatalogueDiv[i][ii].item.marketId + ",";
                         eventIds = eventIds + marketCatalogueDiv[i][ii].item.event.id + ",";
                         eventNames = eventNames + marketCatalogueDiv[i][ii].item.event.name + ",";
@@ -63,7 +71,8 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                                 encodeURIComponent(eventIds) + "/" + 
                                 encodeURIComponent(eventNames) + "/" + 
                                 encodeURIComponent(eventCountrycodes) + "/" + 
-                                encodeURIComponent(competitions))
+                                encodeURIComponent(competitions) + "/" + 
+                                encodeURIComponent(selections)) 
                            .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
                            .end(function (marketResponses) {
 
@@ -95,6 +104,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                                         eventCountryIds: markets[mr].eventCountryIds,
                                         competition: markets[mr].competition,
                                         totalMatched: markets[mr].item.totalMatched,
+                                        runners: markets[mr].item.runners,
                                         selection: [{
                                             selectionId:        markets[mr].item.runners[0].selectionId,
                                             totalRunnerMatched: markets[mr].item.runners[0].totalMatched,
@@ -145,7 +155,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                                 if (log) console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Soccer Odds Controller. " + odds.length + " items of " + marketCatalogueResponse.body.length + " formed and sent to Logg controller"); 
 
                                 //##### send odds and other game stats to logg controller
-                                loggs.loggOdds(odds, times, isInPlay);
+                                //loggs.loggOdds(odds, times, isInPlay);
                                 //#####
 
                            });
