@@ -154,23 +154,31 @@ module.exports = function(app, token) {
                 var selectionsArr = selections.split(",");
               
                 var output = [];
-
+               
                 body.map(function(item, i) { 
                     var runnersOutput = [];  
-                    var runners = selectionsArr[i].split("---");  
+                    var runnersArr = selectionsArr[i].split("---");
+                    // trim off last comma
+                    var runnersArr = runnersArr.slice(0, -1); 
                     
-                    runnersOutput.push({
-                        selectionId: runners[0],
-                        runnerName: runners[1]
-                    })
-                                   
+                    for (var ii in runnersArr) {
+                        var rArr = runnersArr[ii].split("+++");
+
+                        runnersOutput.push({
+                            selectionId: rArr[0],
+                            runnerName: rArr[1]
+                        })
+                    }
+                 
                     return output.push({
-                        item,
-                        eventId: eventIdsArr[i],
-                        eventName: eventNamesArr[i],
-                        eventCountryIds: eventCountryIdsArr[i],
-                        competition: competitionsArr[i],
-                        runners: runnersOutput
+                        item, 
+                        parameters: {
+                            eventId: eventIdsArr[i],
+                            eventName: eventNamesArr[i],
+                            eventCountryIds: eventCountryIdsArr[i],
+                            competition: competitionsArr[i],
+                            selections: runnersOutput
+                        }
                     })
             });
 
