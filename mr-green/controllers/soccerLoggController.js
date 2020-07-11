@@ -201,6 +201,7 @@ function loggOddsPriv(odds, times, isInPlay) {
                     eventName: odds[i].eventName,
                     country: odds[i].eventCountryIds,
                     competition: odds[i].competition,
+                    runners: odds[i].runners,
                     markets: [market]
                 }
 

@@ -137,7 +137,7 @@ module.exports = function(app, token) {
     // * GET List Market Bet (by passing market id)
     // ****************************************************
    
-    app.get("/api/listMarketBet/:marketid/:eventid/:eventname/:countryid/:competition", function(req, res) {
+    app.get("/api/listMarketBet/:marketid/:eventid/:eventname/:countryid/:competition/:selections", function(req, res) {
         function callback(error, response, body) {
             if (!error && response.statusCode == 200) {
 
@@ -145,21 +145,32 @@ module.exports = function(app, token) {
                 var eventNames = req.params.eventname;
                 var eventCountryIds = req.params.countryid;
                 var competitions = req.params.competition;
+                var selections = req.params.selections;
 
                 var eventIdsArr = eventIds.split(",");
                 var eventNamesArr = eventNames.split(",");
                 var eventCountryIdsArr = eventCountryIds.split(",");
                 var competitionsArr = competitions.split(",");
+                var selectionsArr = selections.split(",");
               
                 var output = [];
 
-                body.map(function(item, i) {                    
+                body.map(function(item, i) { 
+                    var runnersOutput = [];  
+                    var runners = selectionsArr[i].split("---");  
+                    
+                    runnersOutput.push({
+                        selectionId: runners[0],
+                        runnerName: runners[1]
+                    })
+                                   
                     return output.push({
                         item,
                         eventId: eventIdsArr[i],
                         eventName: eventNamesArr[i],
                         eventCountryIds: eventCountryIdsArr[i],
-                        competition: competitionsArr[i]
+                        competition: competitionsArr[i],
+                        runners: runnersOutput
                     })
             });
 
