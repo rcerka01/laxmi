@@ -3,12 +3,13 @@ console.log(d.getFullYear() + " " + d.getDate() + " " + d.getHours() + " " + d.g
 
 console.log(new Date().toLocaleString()); 
 
-
-
 var k = [1,2,3]
 
-k.unshift(4)
+var threshold = 0.2;
 
-console.log(k)
+function isAboveThreshold(prev, curr) {
+    if (prev - curr > threshold || curr - prev > threshold ) { return true; }
+    return false;
+ }
 
-console.log(k.reverse())
+ console.log( isAboveThreshold(4, 4.3))
