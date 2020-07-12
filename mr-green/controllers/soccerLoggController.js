@@ -63,7 +63,7 @@ function updateOddsInDb(conditions, update) {
 
 function loggOddsPriv(data, times, isInPlay) {
 
-    // var eventIds = odds.map(item => item.eventId);
+    var eventIds = data.map(item => item.eventId);
     // records = await vishnu.dataset.find().where("eventId").in(eventIds).exec();
 
     // get saved Vishnus
@@ -200,7 +200,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     marketName: "Match Odds",
                     totalMatched: data[i].totalMatched,
                     created: new Date(),
-                    selectionIds: data.selectionIds,
+                    selectionIds: data[i].selectionIds,
                     selection: data[i].odds
                 };
 

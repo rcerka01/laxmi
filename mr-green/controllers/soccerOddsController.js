@@ -152,7 +152,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
 
                                     }
 
-                                if (log) console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Soccer Odds Controller. " + odds.length + " items of " + marketCatalogueResponse.body.length + " formed and sent to Logg controller"); 
+                                if (log) console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Soccer Odds Controller. " + dataOut.length + " items of " + marketCatalogueResponse.body.length + " formed and sent to Logg controller"); 
 
                                 //##### send odds and other game stats to logg controller
                                 //loggs.loggOdds(dataOut, times, isInPlay);
