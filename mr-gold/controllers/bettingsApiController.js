@@ -141,57 +141,107 @@ module.exports = function(app, token) {
         function callback(error, response, body) {
             if (!error && response.statusCode == 200) {
 
+                var marketIds = req.params.marketid;
                 var eventIds = req.params.eventid;
                 var eventNames = req.params.eventname;
                 var eventCountryIds = req.params.countryid;
                 var competitions = req.params.competition;
                 var selections = req.params.selections;
 
+                var marketIdsArr = marketIds.split(",");
                 var eventIdsArr = eventIds.split(",");
                 var eventNamesArr = eventNames.split(",");
                 var eventCountryIdsArr = eventCountryIds.split(",");
                 var competitionsArr = competitions.split(",");
                 var selectionsArr = selections.split(",");
-              
+
+                function trimComa(item) {
+                    if (item[item.length-1] == "") { return item.slice(0, -1); }
+                    else { return item; }
+                }
+
+                // trim last coma symbol
+                marketIdsArr = trimComa(marketIdsArr);
+                eventIdsArr = trimComa(eventIdsArr);
+                eventNamesArr = trimComa(eventNamesArr);
+                eventCountryIdsArr = trimComa(eventCountryIdsArr);
+                competitionsArr = trimComa(competitionsArr);
+                selectionsArr = trimComa(selectionsArr);
+
                 var output = [];
-               
-                body.map(function(item, i) { 
-                    var runnersOutput = [];  
-                    var runnersArr = selectionsArr[i].split("---");
-                    // trim off last comma
-                    var runnersArr = runnersArr.slice(0, -1); 
-                    
-                    for (var ii in runnersArr) {
-                        var rArr = runnersArr[ii].split("+++");
+            
+                // check if parameters passed correctly
+                if (
+                    marketIdsArr.length == eventIdsArr.length &&
+                    marketIdsArr.length == eventNamesArr.length &&
+                    marketIdsArr.length == eventCountryIdsArr.length &&
+                    marketIdsArr.length == competitionsArr.length &&
+                    marketIdsArr.length ==  selectionsArr.length)
+                    {
+                        for (var i in marketIdsArr) {
 
-                        runnersOutput.push({
-                            selectionId: rArr[0],
-                            runnerName: rArr[1]
-                        })
-                    }
-                 
-                    return output.push({
-                        item, 
-                        parameters: {
-                            eventId: eventIdsArr[i],
-                            eventName: eventNamesArr[i],
-                            eventCountryIds: eventCountryIdsArr[i],
-                            competition: competitionsArr[i],
-                            selections: runnersOutput
+                            var responseItem = body.find(item => marketIdsArr[i] == item.marketId);
+
+                            try { var runnersArr = selectionsArr[i].split("---"); } catch (e) { console.log("Missformed selection ids " + e); return res.json([]); }
+                            // trim off last comma
+                            runnersArr = runnersArr.slice(0, -1); 
+
+                            // format selection (runner) ids for output
+                            var runnersOutput =[];
+                            for (var ii in runnersArr) {
+                                try { var runner = runnersArr[ii].split("+++"); } catch (e) { console.log("Missformed selection ids " + e); return res.json([]); }
+
+                                runnersOutput.push({
+                                    selectionId: runner[0],
+                                    runnerName: runner[1]
+                                })
+                            }
+
+                            // error check before output
+                            var existSelectionIds = [];
+                            var testOutput = runnersOutput.map(i => parseInt(i.selectionId));
+                            try { var responseSelectionItem = responseItem.runners } catch (e) { var responseSelectionItem = []; }
+
+                            for (var iii in responseSelectionItem) {
+                                if (testOutput.includes(responseSelectionItem[iii].selectionId)) {
+                                    existSelectionIds.push(responseSelectionItem[iii].selectionId)
+                                }
+                            }
+
+                            // form output if no errors
+                            if (existSelectionIds.length < 3) {
+                                console.log("Selection Ids not match, event: " + eventIdsArr[i] + " Data excluded"); 
+                            } else {
+
+                                // change field name to item
+                                var item = responseItem
+                                output.push({
+                                    item, 
+                                    parameters: {
+                                        eventId: eventIdsArr[i],
+                                        eventName: eventNamesArr[i],
+                                        eventCountryIds: eventCountryIdsArr[i],
+                                        competition: competitionsArr[i],
+                                        selections: runnersOutput
+                                    }
+                                })    
+                            }
+
+                        // loop    
                         }
-                    })
-            });
+                    // if for parameter cheks
+                    } else { console.log("Missformed parameters"); return res.json([]); }
 
-           res.json(output);
+                // main output    
+                return res.json(output);
             
             } else if (response.statusCode == 400) { 
                 utilities.recoverFromUnauthorisedRequest(app, req, res) 
-             } else {
+            } else {
                 console.log("Unexpected error from " + req.url +", " + error)
                 res.json([]);
-             }
+            }
         }
-
         request.post(options(urlMarketBookList, token, bodyMarketBookList(req.params.marketid)), callback);
     });
 
