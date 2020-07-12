@@ -123,7 +123,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.0.lay": tempArr }
 
-                    console.log("Lay 0 price updated "+ data[i].eventId + " " + JSON.stringify(tempArr));
+                   // console.log("Lay 0 price updated "+ data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }
@@ -140,7 +140,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.1.back": tempArr }
 
-                    console.log("Back 1 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
+                   // console.log("Back 1 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }
@@ -155,7 +155,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.1.lay": tempArr }
 
-                    console.log("Lay 1 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
+                  //  console.log("Lay 1 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }   
@@ -172,7 +172,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.2.back": tempArr }
 
-                    console.log("Back 2 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
+                   // console.log("Back 2 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }
@@ -187,7 +187,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.2.lay": tempArr }
 
-                    console.log("Lay 2 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
+                   // console.log("Lay 2 price updated " + data[i].eventId + " " + JSON.stringify(tempArr));
 
                     updateOddsInDb(conditions, update);
                 }
@@ -214,7 +214,7 @@ function loggOddsPriv(data, times, isInPlay) {
 
                 var conditions = { eventId: data[i].eventId }
 
-                console.log("Market updated fully")
+                //console.log("Market updated fully")
 
                 updateOddsInDb(conditions, update);
             }
