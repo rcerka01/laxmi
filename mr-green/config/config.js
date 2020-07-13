@@ -4,11 +4,26 @@ var config = {
     app: {
         live: true, 
         log: false,
-        oddlog: false, 
         port: 3002,
         updateTimes: {
             seconds: [5,35]
         }
+    },
+    soccer: {
+        bid: 2,
+        elapsedTime: 77,
+        scoreHigher: 2,
+        version: "2.0.0"
+    },
+    odds: {
+        threshold: 0.1
+    },
+    logging: {
+        oddsLive: false,
+        oddsComingUp: false,
+        account: false,
+        events: false,
+        betting: false
     },
     mrGold: {
         host: "raitis.co.uk",
@@ -27,13 +42,6 @@ var config = {
         name: "betfair-db",
         login: secret.db.login,
         password: secret.db.password
-    },
-    soccer: {
-       // timeCollectMarketLog: 88,
-        bid: 2,
-        elapsedTime: 77,
-        scoreHigher: 2,
-        version: "2.0.0"
     }
 }
 
