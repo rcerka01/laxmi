@@ -19,8 +19,7 @@ var config = {
         threshold: 0.01
     },
     logging: {
-        oddsLive: false,
-        oddsComingUp: false,
+        odds: false,
         account: false,
         events: false,
         betting: false
