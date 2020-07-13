@@ -16,7 +16,7 @@ var config = {
         version: "2.0.0"
     },
     odds: {
-        threshold: 0.1
+        threshold: 0.01
     },
     logging: {
         oddsLive: false,
