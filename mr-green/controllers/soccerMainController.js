@@ -46,7 +46,6 @@ function updateSoccerGames(times) {
 
             // log
             if (log) { console.log("Iteration: " + times +". Main controller. Got ALL soccer events for ODDS controller from MR GOLD api"); }
-
             //##### Pass all soccer events to soccer odds controller
             soccerOdds.updateOddChanges(gamesAllResponse.body, domainMrGold, times, false);
             //#####
@@ -61,12 +60,11 @@ function updateSoccerGames(times) {
     unirest.get(domainMrGold + '/api/listInPlaySoccerEvents')
         .end(function (gamesInPlayResponse) {
 
-            // // log
-            // if (log) { console.log("Iteration: " + times +". Main controller. Got IN-PLAY soccer events for ODDS controller from MR GOLD api"); }
-    
-            // //##### Pass in-play soccer events to soccer odds controller
-            // soccerOdds.updateOddChanges(gamesInPlayResponse.body, domainMrGold, times, true);
-            // //#####
+            // log
+            if (log) { console.log("Iteration: " + times +". Main controller. Got IN-PLAY soccer events for ODDS controller from MR GOLD api"); }
+            //##### Pass in-play soccer events to soccer odds controller
+            soccerOdds.updateOddChanges(gamesInPlayResponse.body, domainMrGold, times, true);
+            //#####
         })
         .on('error', function(e) {
             console.log("Error rerieving listInPlaySoccerEvents for ODDS controller from Mr Grold API: " + e.message);

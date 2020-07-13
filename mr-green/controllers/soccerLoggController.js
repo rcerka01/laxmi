@@ -3,7 +3,7 @@ var vishnu = require("../models/Vishnu");
 var conf = require("../config/config");
 
 const log = conf.app.log;
-const logOdds = conf.logging.oddsComingUp;
+const logOdds = conf.logging.odds;
 const threshold = conf.odds.threshold;
 
 // PRIVATE FUNCTIONS -------------------------------------------------------------------------------
@@ -103,7 +103,8 @@ function loggOddsPriv(data, times, isInPlay) {
                     tempArr.unshift({
                         price: data[i].odds[0].back[0].price,
                         size: data[i].odds[0].back[0].size,
-                        updated: new Date()})
+                        updated: new Date(),
+                        isInPlay: isInPlay})
 
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.0.back": tempArr }
@@ -117,7 +118,8 @@ function loggOddsPriv(data, times, isInPlay) {
                     tempArr.unshift({
                         price: data[i].odds[0].lay[0].price,
                         size: data[i].odds[0].lay[0].size,
-                        updated: new Date()})
+                        updated: new Date(),
+                        isInPlay: isInPlay})
 
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.0.lay": tempArr }
@@ -132,7 +134,8 @@ function loggOddsPriv(data, times, isInPlay) {
                     tempArr.unshift({
                         price: data[i].odds[1].back[0].price,
                         size: data[i].odds[1].back[0].size,
-                        updated: new Date()})
+                        updated: new Date(),
+                        isInPlay: isInPlay})
 
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.1.back": tempArr }
@@ -146,7 +149,8 @@ function loggOddsPriv(data, times, isInPlay) {
                     tempArr.unshift({
                         price: data[i].odds[1].lay[0].price,
                         size: data[i].odds[1].lay[0].size,
-                        updated: new Date()})
+                        updated: new Date(),
+                        isInPlay: isInPlay})
 
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.1.lay": tempArr }
@@ -161,7 +165,8 @@ function loggOddsPriv(data, times, isInPlay) {
                     tempArr.unshift({
                         price: data[i].odds[2].back[0].price,
                         size: data[i].odds[2].back[0].size,
-                        updated: new Date()})
+                        updated: new Date(),
+                        isInPlay: isInPlay})
 
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.2.back": tempArr }
@@ -175,7 +180,8 @@ function loggOddsPriv(data, times, isInPlay) {
                     tempArr.unshift({
                         price: data[i].odds[2].lay[0].price,
                         size: data[i].odds[2].lay[0].size,
-                        updated: new Date()})
+                        updated: new Date(),
+                        isInPlay: isInPlay})
 
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.2.lay": tempArr }
