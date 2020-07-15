@@ -47,6 +47,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                     var eventCountrycodes = "";
                     var competitions = "";
                     var selections = "";
+                    var openDates = "";
                     
                     // game stats (eventid, marketid, eventname etc.) is not present in listMarketBook endpint
                     // to access them we pass and rcieve them manually
@@ -63,6 +64,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                         try { eventNames = eventNames + marketCatalogueDiv[i][ii].item.event.name + ","; } catch(e) { eventNames = eventNames + ","; }
                         try { eventCountrycodes = eventCountrycodes + marketCatalogueDiv[i][ii].item.event.countryCode + ","; } catch(e) { eventCountrycodes = eventCountrycodes + ","; }
                         try { competitions = competitions + marketCatalogueDiv[i][ii].item.competition.name + ","; } catch(e) { competitions = competitions + ","; }
+                        try { openDates = openDates + marketCatalogueDiv[i][ii].item.event.openDate + ","; } catch(e) { openDates = openDates + ","; }
                     }
 
                     // RETRIEVE ODDS
@@ -72,7 +74,8 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                                 encodeURIComponent(eventNames) + "/" + 
                                 encodeURIComponent(eventCountrycodes) + "/" + 
                                 encodeURIComponent(competitions) + "/" + 
-                                encodeURIComponent(selections)) 
+                                encodeURIComponent(selections) + "/" + 
+                                encodeURIComponent(openDates)) 
                            .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
                            .end(function (marketResponses) {
 
@@ -105,6 +108,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
                                         competition: markets[mr].parameters.competition,
                                         totalMatched: markets[mr].item.totalMatched,
                                         selectionIds: markets[mr].parameters.selections,
+                                        openDate: markets[mr].parameters.openDate,
                                         odds: [{
                                             selectionId:        markets[mr].item.runners[0].selectionId,
                                             totalRunnerMatched: markets[mr].item.runners[0].totalMatched,
