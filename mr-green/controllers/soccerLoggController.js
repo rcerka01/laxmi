@@ -74,11 +74,48 @@ function loggOddsPriv(data, times, isInPlay) {
     vishnu.dataset.find().where("eventId").in(eventIds).exec((err, dBresults) => {
         
         for (var i in data) {
+
             var recordInDb;
             for (var ii in dBresults) {
                 if (dBresults[ii].eventId == data[i].eventId) {
                     var recordInDb = dBresults[ii];
                 }
+            }
+
+            // self healing. update competition, country, eventName or openDate if undefined
+            try {
+                var dbSelId0 = recordInDb.markets[0].selectionIds[0].selectionId;
+                var dbSelId1 = recordInDb.markets[0].selectionIds[1].selectionId;
+                var dbSelId2 = recordInDb.markets[0].selectionIds[2].selectionId;
+
+                var dataSelId0 = data[i].selectionIds[0].selectionId;
+                var dataSelId1 = data[i].selectionIds[1].selectionId;
+                var dataSelId2 = data[i].selectionIds[2].selectionId;
+            } catch (e) {
+                var dbSelId0 = "cat";
+                var dbSelId1 = "cat";
+                var dbSelId2 = "cat";
+
+                var dataSelId0 = "dog";
+                var dataSelId1 = "dog";
+                var dataSelId1 = "dog";
+            } 
+            if (recordInDb.competition != data[i].competition ||
+                recordInDb.eventName != data[i].eventName ||
+                recordInDb.country != data[i].eventCountryIds ||
+                //recordInDb.openDate != data[i].openDate
+                dbSelId0 != dataSelId0 || dbSelId1 != dataSelId1 || dbSelId2 != dataSelId2
+                ) {
+                    var conditions = { eventId: data[i].eventId }
+                    var update = {
+                        "eventName": data[i].eventName,
+                        "country": data[i].eventCountryIds,
+                        "competition": data[i].competition,
+                        "markets.0.selectionIds": data[i].selectionIds
+                    }
+
+                updateOddsInDb(conditions, update);
+                if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Self healing. Vishnu properies updated for event: " + data[i].eventId); }
             }
 
             try { 
@@ -110,7 +147,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var update = { "markets.0.selection.0.back": tempArr }
 
                     updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 0 price updated " + data[i].eventId + " " + JSON.stringify(tempArr)); }
+                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 0 price updated " + data[i].eventId); }
 
 
                 if (lay0priceDB != lay0priceBF && isAboveThreshold(lay0priceDB, lay0priceBF)) {
@@ -125,7 +162,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var update = { "markets.0.selection.0.lay": tempArr }
 
                     updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 0 price updated " + data[i].eventId + " " + JSON.stringify(tempArr)); }
+                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 0 price updated " + data[i].eventId); }
                 }
 
                 // 1.
@@ -141,7 +178,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var update = { "markets.0.selection.1.back": tempArr }
 
                     updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 1 price updated " + data[i].eventId + " " + JSON.stringify(tempArr)); }
+                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 1 price updated " + data[i].eventId); }
                 }
 
                 if (lay1priceDB != lay1priceBF && isAboveThreshold(lay1priceDB, lay1priceBF)) {
@@ -156,7 +193,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var update = { "markets.0.selection.1.lay": tempArr }
 
                     updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 1 price updated " + data[i].eventId + " " + JSON.stringify(tempArr)); }
+                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 1 price updated " + data[i].eventId); }
                 }   
                 
                 // 2.
@@ -172,7 +209,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var update = { "markets.0.selection.2.back": tempArr }
 
                     updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 2 price updated " + data[i].eventId + " " + JSON.stringify(tempArr)); }
+                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 2 price updated " + data[i].eventId); }
                 }
 
                 if (lay2priceDB != lay2priceBF && isAboveThreshold(lay2priceDB, lay2priceBF)) {
@@ -187,7 +224,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     var update = { "markets.0.selection.2.lay": tempArr }
 
                     updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 2 price updated " + data[i].eventId + " " + JSON.stringify(tempArr)); }
+                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 2 price updated " + data[i].eventId); }
                 }
             }   
 
