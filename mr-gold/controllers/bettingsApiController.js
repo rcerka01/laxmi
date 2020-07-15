@@ -137,7 +137,7 @@ module.exports = function(app, token) {
     // * GET List Market Bet (by passing market id)
     // ****************************************************
    
-    app.get("/api/listMarketBet/:marketid/:eventid/:eventname/:countryid/:competition/:selections", function(req, res) {
+    app.get("/api/listMarketBet/:marketid/:eventid/:eventname/:countryid/:competition/:selections/:openDate", function(req, res) {
         function callback(error, response, body) {
             if (!error && response.statusCode == 200) {
 
@@ -147,6 +147,7 @@ module.exports = function(app, token) {
                 var eventCountryIds = req.params.countryid;
                 var competitions = req.params.competition;
                 var selections = req.params.selections;
+                var openDate = req.params.opendate;
 
                 var marketIdsArr = marketIds.split(",");
                 var eventIdsArr = eventIds.split(",");
@@ -154,6 +155,7 @@ module.exports = function(app, token) {
                 var eventCountryIdsArr = eventCountryIds.split(",");
                 var competitionsArr = competitions.split(",");
                 var selectionsArr = selections.split(",");
+                var openDateArr = openDate.split(",");
 
                 function trimComa(item) {
                     if (item[item.length-1] == "") { return item.slice(0, -1); }
@@ -167,6 +169,7 @@ module.exports = function(app, token) {
                 eventCountryIdsArr = trimComa(eventCountryIdsArr);
                 competitionsArr = trimComa(competitionsArr);
                 selectionsArr = trimComa(selectionsArr);
+                openDateArr = trimComa(openDateArr);
 
                 var output = [];
             
@@ -176,7 +179,8 @@ module.exports = function(app, token) {
                     marketIdsArr.length == eventNamesArr.length &&
                     marketIdsArr.length == eventCountryIdsArr.length &&
                     marketIdsArr.length == competitionsArr.length &&
-                    marketIdsArr.length ==  selectionsArr.length)
+                    marketIdsArr.length ==  selectionsArr.length &&
+                    marketIdsArr.length ==  openDateArr.length)
                     {
                         for (var i in marketIdsArr) {
 
@@ -222,7 +226,8 @@ module.exports = function(app, token) {
                                         eventName: eventNamesArr[i],
                                         eventCountryIds: eventCountryIdsArr[i],
                                         competition: competitionsArr[i],
-                                        selections: runnersOutput
+                                        selections: runnersOutput,
+                                        openDate: openDateArr[i]
                                     }
                                 })    
                             }
