@@ -2,8 +2,8 @@ var secret = require("./secret");
 
 var config = {
     app: {
-        live: false, 
-        log: true,
+        live: true, 
+        log: false,
         port: 3002,
         updateTimes: {
             seconds: [5,35]
@@ -19,7 +19,7 @@ var config = {
         threshold: 0.01
     },
     logging: {
-        odds: true,
+        odds: false,
         account: false,
         events: false,
         betting: false
