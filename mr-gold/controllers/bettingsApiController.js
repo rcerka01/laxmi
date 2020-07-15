@@ -137,7 +137,7 @@ module.exports = function(app, token) {
     // * GET List Market Bet (by passing market id)
     // ****************************************************
    
-    app.get("/api/listMarketBet/:marketid/:eventid/:eventname/:countryid/:competition/:selections/:openDate", function(req, res) {
+    app.get("/api/listMarketBet/:marketid/:eventid/:eventname/:countryid/:competition/:selections/:opendate", function(req, res) {
         function callback(error, response, body) {
             if (!error && response.statusCode == 200) {
 
