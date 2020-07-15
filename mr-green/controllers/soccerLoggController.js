@@ -103,7 +103,7 @@ function loggOddsPriv(data, times, isInPlay) {
             if (recordInDb.competition != data[i].competition ||
                 recordInDb.eventName != data[i].eventName ||
                 recordInDb.country != data[i].eventCountryIds ||
-                //recordInDb.openDate != data[i].openDate
+                recordInDb.openDate != data[i].openDate ||
                 dbSelId0 != dataSelId0 || dbSelId1 != dataSelId1 || dbSelId2 != dataSelId2
                 ) {
                     var conditions = { eventId: data[i].eventId }
@@ -111,11 +111,11 @@ function loggOddsPriv(data, times, isInPlay) {
                         "eventName": data[i].eventName,
                         "country": data[i].eventCountryIds,
                         "competition": data[i].competition,
+                        "openDate": data[i].openDate,
                         "markets.0.selectionIds": data[i].selectionIds
                     }
-
-                updateOddsInDb(conditions, update);
-                if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Self healing. Vishnu properies updated for event: " + data[i].eventId); }
+                    updateOddsInDb(conditions, update);
+                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Self healing. Vishnu properies updated for event: " + data[i].eventId); }
             }
 
             try { 
@@ -244,6 +244,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     eventName: data[i].eventName,
                     country: data[i].eventCountryIds,
                     competition: data[i].competition,
+                    openDate: data[i].openDate,
                     markets: [market]
                 }
 
