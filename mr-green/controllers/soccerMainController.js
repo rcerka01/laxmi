@@ -13,12 +13,10 @@ rule.second = conf.app.updateTimes.seconds;
 
 var times = 0;
 
-const log = conf.app.log;
+const logOdds = conf.logging.odds;
+const logEvents = conf.logging.events;
   
 function updateSoccerGames(times) {
-
-    // log
-    if (log) { console.log("\nIteration: " + times + "."); }
 
     // logging changes in account
     loggs.loggAccountStatus(domainMrGold, times);
@@ -29,7 +27,7 @@ function updateSoccerGames(times) {
         .end(function (gamesInPlayResponse) {
 
             // log
-            if (log) { console.log("Iteration: " + times +". Main controller. Got IN-PLAY soccer events for EVENTS controller from MR GOLD api"); }
+            if (logEvents) { console.log("Iteration: " + times +". Main controller. Got IN-PLAY soccer events for EVENTS controller from MR GOLD api"); }
 
             //##### Pass in-play soccer events to soccer events controller
             soccerEvents.catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, times);
@@ -45,7 +43,7 @@ function updateSoccerGames(times) {
         .end(function (gamesAllResponse) {
 
             // log
-            if (log) { console.log("Iteration: " + times +". Main controller. Got ALL soccer events for ODDS controller from MR GOLD api"); }
+            if (logOdds) { console.log("Iteration: " + times +". Main controller. Got ALL soccer events for ODDS controller from MR GOLD api"); }
             //##### Pass all soccer events to soccer odds controller
             if (gamesAllResponse.body.length > 0) {
                 soccerOdds.updateOddChanges(gamesAllResponse.body, domainMrGold, times, false);
@@ -63,7 +61,7 @@ function updateSoccerGames(times) {
         .end(function (gamesInPlayResponse) {
 
             // log
-            if (log) { console.log("Iteration: " + times +". Main controller. Got IN-PLAY soccer events for ODDS controller from MR GOLD api"); }
+            if (logOdds) { console.log("Iteration: " + times +". Main controller. Got IN-PLAY soccer events for ODDS controller from MR GOLD api"); }
             //##### Pass in-play soccer events to soccer odds controller
             if (gamesInPlayResponse.body.length > 0) {
                 soccerOdds.updateOddChanges(gamesInPlayResponse.body, domainMrGold, times, true);

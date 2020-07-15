@@ -2,12 +2,12 @@ var unirest = require('unirest');
 var bet = require("../models/Bet").newDataset;
 var conf = require("../config/config");
 
-const log = conf.app.log;
+const logBets = conf.logging.bets;
 
 function placeBet(domainMrGold, eventId, name, elapsedTime) {
 
     // log
-    if (log) { console.log(name + " PLACING BET."); }
+    if (logBets) { console.log(name + " PLACING BET."); }
 
     // RETRIEVE MARKET CATALOGUE
     unirest.get(domainMrGold + '/api/listCatalogue/' + eventId)
@@ -18,7 +18,7 @@ function placeBet(domainMrGold, eventId, name, elapsedTime) {
             if (marketCatalogueResponse.body[0]) {
 
                 // log
-                if (log) { console.log(name + " PLACING BET. List catalogue from MR GOLD retrieved successfully"); }
+                if (logBets) { console.log(name + " PLACING BET. List catalogue from MR GOLD retrieved successfully"); }
 
                 var marketCatalogue = marketCatalogueResponse.body[0];
        
@@ -28,17 +28,17 @@ function placeBet(domainMrGold, eventId, name, elapsedTime) {
                 var marketId = marketCatalogue.item.marketId;
 
                 // log
-                if (log) { console.log(name + " PLACING BET. Market id: " + marketId); }
+                if (logBets) { console.log(name + " PLACING BET. Market id: " + marketId); }
 
                 var runners = marketCatalogue.item.runners;
 
                 // log
-                if (log) { console.log(name + " PLACING BET. Loop trough runners"); }
+                if (logBets) { console.log(name + " PLACING BET. Loop trough runners"); }
                 
                 for (var r in runners) {
                     if (runners[r].runnerName == name) {
 
-                        if (log) { console.log(name + " PLACING BET. Found correct runner (bet) by name " + runners[r].runnerName + " " + runners[r].selectionId); }
+                        if (logBets) { console.log(name + " PLACING BET. Found correct runner (bet) by name " + runners[r].runnerName + " " + runners[r].selectionId); }
 
                         var selectionId = runners[r].selectionId;
 
@@ -54,7 +54,7 @@ function placeBet(domainMrGold, eventId, name, elapsedTime) {
                                             if (listRunnerBetResponse.body[0].item.runners[0].ex !== 'undefined') {
 
                                                 // log
-                                                if (log) { console.log(name + " PLACING BET. List runner bet from MR GOLD, with all fields, recieved successfully"); }
+                                                if (logBets) { console.log(name + " PLACING BET. List runner bet from MR GOLD, with all fields, recieved successfully"); }
                                                 
                                                 var backPrice = 0;
                                                 var backSize = 0;
@@ -81,7 +81,7 @@ function placeBet(domainMrGold, eventId, name, elapsedTime) {
                                                 if (laySize < sum) { laySum = laySize } else { laySum = sum } 
 
                                                 // log
-                                                if (log) { console.log(name + " PLACING BET. Ready for BACK bet. Market Id: " + marketId + " SelectionId: " + selectionId + " Sum: " + backSum + " Price: " + backPrice); }            
+                                                if (logBets) { console.log(name + " PLACING BET. Ready for BACK bet. Market Id: " + marketId + " SelectionId: " + selectionId + " Sum: " + backSum + " Price: " + backPrice); }            
 
                                                 unirest.get(domainMrGold + '/api/placeOrders/'+marketId+'/'+selectionId+'/'+backSum+'/'+backPrice)
                                                 .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
@@ -92,7 +92,7 @@ function placeBet(domainMrGold, eventId, name, elapsedTime) {
                                                     if (body.detail) var detail = JSON.stringify(body.detail); else var detail = "";
 
                                                     // log
-                                                    if (log) console.log(name + " PLACING BET. BACK bet placed. " + instructionReports + ". " + detail);
+                                                    if (logBets) console.log(name + " PLACING BET. BACK bet placed. " + instructionReports + ". " + detail);
                                                 
                                                     // write in DB
                                                     bet(    
@@ -136,7 +136,7 @@ function placeBet(domainMrGold, eventId, name, elapsedTime) {
         });
         
         // log
-        if (log) { console.log(name + " PLACING BET FINISHED."); }
+        if (logBets) { console.log(name + " PLACING BET FINISHED."); }
 }
 
 module.exports = { placeBet: placeBet }

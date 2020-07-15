@@ -2,12 +2,20 @@ var secret = require("./secret");
 
 var config = {
     app: {
-        live: true, 
-        log: false,
+        writeOdds: true,
+        writeAccount: true,
+        writeEvents: true,
+        placeAndWriteBet: true,
         port: 3002,
         updateTimes: {
             seconds: [5,35]
         }
+    },
+    logging: {
+        odds: false,
+        account: false,
+        events: false,
+        bets: false
     },
     soccer: {
         bid: 2,
@@ -16,13 +24,7 @@ var config = {
         version: "2.0.0"
     },
     odds: {
-        threshold: 0.01
-    },
-    logging: {
-        odds: false,
-        account: false,
-        events: false,
-        betting: false
+        threshold: 0.02
     },
     mrGold: {
         host: "raitis.co.uk",

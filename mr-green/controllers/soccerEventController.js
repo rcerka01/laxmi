@@ -5,8 +5,10 @@ var bet = require("../models/Bet");
 var vishnu = require("../models/Vishnu");
 
 var placedBets = [];
-const live = conf.app.live;
-const log = conf.app.log;
+const placeAndWriteBet = conf.app.placeAndWriteBet;
+const writeEvents = conf.app.writeEvents;
+const logEvents = conf.logging.events;
+
 
 function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, times) {
     
@@ -17,7 +19,7 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
     }
     
     // log
-    if (log) { console.log("Iteration: " + times +". Soccer controller. In-play socer events ids: " + eventIds) }
+    if (logEvents) { console.log("Iteration: " + times +". Soccer controller. In-play socer events ids: " + eventIds) }
 
     // retrieve Vishnu eventTimelines
     unirest.get(domainVishnu + '/api/listEventStatus/' + eventIds)
@@ -25,13 +27,13 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
         .end(function (eventTimelinesResponse) {
 
            // log
-           if (log) { console.log("Iteration: " + times + ". Soccer controller. Retrieved from Vishnu all event timelines"); }
+           if (logEvents) { console.log("Iteration: " + times + ". Soccer controller. Retrieved from Vishnu all event timelines"); }
 
             // if Vishnu response is JSON 
            if (eventTimelinesResponse.headers['content-type'] == 'application/json') {
 
                 // log
-                if (log) { console.log("Iteration: " + times + ". Soccer controller. Vishnu response is JSON"); }
+                if (logEvents) { console.log("Iteration: " + times + ". Soccer controller. Vishnu response is JSON"); }
 
                 var vishnuEventTimeline = eventTimelinesResponse.body;
 
@@ -39,7 +41,7 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                 var prevEventIds = [];
 
                 // log
-                if (log) { console.log("Iteration: " + times
+                if (logEvents) { console.log("Iteration: " + times
                  + ". Soccer controller. Event ids loaded from VISHNU (must mutch with retrieved from MR GOLD): "
                  + vishnuEventTimeline.map(event => event.eventId)); }
 
@@ -62,28 +64,32 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                     ) { run = true }
                     else { 
                             // log
-                            if (log) { console.log("Iteration: " + times
+                            if (logEvents) { console.log("Iteration: " + times
                             + ". Soccer controller. Event id " + vishnuEventTimeline[i].eventId + " had undefined field(s) in VISHNU response"); }
                     }
 
                     var conditions = { eventId: vishnuEventTimeline[i].eventId }
 
                     // write game statusses from Vishnu in DB
-                    vishnu.dataset.findOneAndUpdate(conditions, vishnuEventTimeline[i], {upsert: true}, function(err) {
-                        if (err) {
-                            console.log("ERROR writing Vishnu to game log DB: " + err);                        
-                        throw err;
-                        } 
-                    });
-
-                    // if compleate, write game results for all its bets
-                    if  (vishnuEventTimeline[i].status == "COMPLETE") {
-                        bet.dataset.updateMany(conditions, {gameStatus: vishnuEventTimeline[i].status, score: vishnuEventTimeline[i].score}, {upsert: false}, function(err) {
+                    if (writeEvents) {
+                        vishnu.dataset.findOneAndUpdate(conditions, vishnuEventTimeline[i], {upsert: true}, function(err) {
                             if (err) {
-                                console.log("ERROR writing Vishnu to bet log DB: " + err);                        
+                                console.log("ERROR writing Vishnu to game log DB: " + err);                        
                             throw err;
                             } 
                         });
+                    }
+
+                    // if compleate, write game results for all its bets
+                    if  (vishnuEventTimeline[i].status == "COMPLETE") {
+                        if (writeEvents) {
+                            bet.dataset.updateMany(conditions, {gameStatus: vishnuEventTimeline[i].status, score: vishnuEventTimeline[i].score}, {upsert: false}, function(err) {
+                                if (err) {
+                                    console.log("ERROR writing Vishnu to bet log DB: " + err);                        
+                                throw err;
+                                } 
+                            });
+                        }
                     }
 
                     // if so, run
@@ -94,7 +100,7 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                             if (vishnuEventTimeline[i].timeElapsed >= conf.soccer.elapsedTime) {
 
                                //log
-                               if (log) { console.log("Iteration: " + times
+                               if (logEvents) { console.log("Iteration: " + times
                                + ". Soccer controller. Elapsed time " + vishnuEventTimeline[i].timeElapsed 
                                + " for " + vishnuEventTimeline[i].eventId
                                + " is right to place a bet"); }
@@ -104,13 +110,13 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                                     // to avoid double betting
                                     placedBets.push(vishnuEventTimeline[i].eventId);
 
-                                    // place bet if live env
-                                    if (live) {
+                                    // place bet if conf
+                                    if (placeAndWriteBet) {
 
                                        betting.placeBet(domainMrGold, vishnuEventTimeline[i].eventId, vishnuEventTimeline[i].score.home.name, vishnuEventTimeline[i].timeElapsed);
                                        
                                        //log
-                                       if (log) { console.log("Iteration: " + times
+                                       if (logEvents) { console.log("Iteration: " + times
                                         + ". Soccer controller. Bet placed for " + vishnuEventTimeline[i].eventId
                                         + " HOME team"); }
                                     }
@@ -122,12 +128,12 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                                     placedBets.push(vishnuEventTimeline[i].eventId);
                                     
                                     // place bet
-                                    if (conf.app.live) {
+                                    if (placeAndWriteBet) {
 
                                         betting.placeBet(domainMrGold, vishnuEventTimeline[i].eventId, vishnuEventTimeline[i].score.away.name, vishnuEventTimeline[i].timeElapsed);
                                         
                                         //log
-                                        if (log) { console.log("Iteration: " + times
+                                        if (logEvents) { console.log("Iteration: " + times
                                          + ". Soccer controller. Bet placed for " + vishnuEventTimeline[i].eventId
                                          + " AWAY team"); }                                        
                                     }
@@ -136,14 +142,14 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                             }
                         } else { 
                             // log
-                            if (log) { console.log("Iteration: " + times
+                            if (logEvents) { console.log("Iteration: " + times
                             + ". Soccer controller. Event id " + vishnuEventTimeline[i].eventId + " has bet already placed"); }
                         }
                     }
                 }
 
                 //log
-                if (log) { console.log("Iteration: " + times
+                if (logEvents) { console.log("Iteration: " + times
                  + ". Soccer controller. Bets placed  before cleaning: " + placedBets); }
 
                 // to clean up placed bets
@@ -158,7 +164,7 @@ function catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, time
                 }
 
                 //log
-                if (log) { console.log("Iteration: " + times
+                if (logEvents) { console.log("Iteration: " + times
                 + ". Soccer controller. Bets placed  after cleaning: " + placedBets); }
             }
         })
