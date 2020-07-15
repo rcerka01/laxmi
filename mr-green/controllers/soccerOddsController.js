@@ -2,7 +2,7 @@ var loggs = require("./soccerLoggController");
 var unirest = require('unirest');
 var conf = require("../config/config");
 
-const log = conf.app.log;
+const logOdds = conf.logging.odds;
 
 function updateOddChanges(games, domainMrGold, times, isInPlay) {
 
@@ -13,7 +13,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
         eventIds = eventIds + games[i].id + ",";
     }
 
-    if (log) console.log("Iteration: " + times + ". Soccer Odds controller. In-play: " + isInPlay + ". Retrieved event ids: " + eventIds); 
+    if (logOdds) console.log("Iteration: " + times + ". Soccer Odds controller. In-play: " + isInPlay + ". Retrieved event ids: " + eventIds); 
 
     // RETRIEVE MARKET CATALOGUES
     unirest.get(domainMrGold + '/api/listCatalogue/' + eventIds)
@@ -24,7 +24,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
             if (marketCatalogueResponse.body.length > 0) {
 
                 // log
-                if (log) console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Soccer Odds Controller. Retrieved market data for " + marketCatalogueResponse.body.length + "  events"); 
+                if (logOdds) console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Soccer Odds Controller. Retrieved market data for " + marketCatalogueResponse.body.length + "  events"); 
             
                 var marketCatalogue = marketCatalogueResponse.body
 
@@ -156,7 +156,7 @@ function updateOddChanges(games, domainMrGold, times, isInPlay) {
 
                                     }
 
-                                if (log) console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Soccer Odds Controller. " + dataOut.length + " items of " + marketCatalogueResponse.body.length + " formed and sent to Logg controller"); 
+                                if (logOdds) console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Soccer Odds Controller. " + dataOut.length + " items of " + marketCatalogueResponse.body.length + " formed and sent to Logg controller"); 
 
                                 //##### send odds and other game stats to logg controller
                                 loggs.loggOdds(dataOut, times, isInPlay);

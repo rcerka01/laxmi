@@ -2,9 +2,12 @@ var unirest = require('unirest');
 var vishnu = require("../models/Vishnu");
 var conf = require("../config/config");
 
-const log = conf.app.log;
 const logOdds = conf.logging.odds;
+const logAccount = conf.logging.account;
 const threshold = conf.odds.threshold;
+const writeOdds = conf.app.writeOdds;
+const writeAccount = conf.app.writeAccount;
+
 
 // PRIVATE FUNCTIONS -------------------------------------------------------------------------------
 
@@ -37,29 +40,32 @@ function updateAccountsStatus(currentStatus, times) {
 
             // save
             var Account = require("../models/Account").newDataset(currentStatus);
-            Account.save(function(err, saveResp) {
-                if (err) {
-                    console.log("ERROR writing LogAccount to DB: " + err);                        
-                } 
-                
-                if (log) { console.log("Iteration: " + times + ". New account state saved: " + saveResp.account.created_at); }
-            });        
-       } else {
-           if (log) { console.log("Iteration: " + times + ". Account state not changed"); }
-       }
-
+            if (writeAccount) {
+                Account.save(function(err, saveResp) {
+                    if (err) {
+                        console.log("ERROR writing LogAccount to DB: " + err);                        
+                    } 
+                    
+                    if (logAccount) { console.log("Iteration: " + times + ". New account state saved: " + saveResp.account.created_at); }
+                });
+            }        
+        } else {
+           if (logAccount) { console.log("Iteration: " + times + ". Account state not changed"); }
+        }
     });
 }
 
 // ODDS #########################################################################################
 
 function updateOddsInDb(conditions, update) {
-    vishnu.dataset.findOneAndUpdate(conditions, update, {upsert: true}, function(err) {
-        if (err) {
-            console.log("ERROR writing Odds into DB: " + err);                        
-        throw err;
-        } 
-    });
+    if (writeOdds) {
+        vishnu.dataset.findOneAndUpdate(conditions, update, {upsert: true}, function(err) {
+            if (err) {
+                console.log("ERROR writing Odds into DB: " + err);                        
+            throw err;
+            } 
+        });
+    }
 }
 
 function isAboveThreshold(prev, curr) {
@@ -67,14 +73,17 @@ function isAboveThreshold(prev, curr) {
    return false;
 }
 
+// data is one, chunked by 20 and reformated, response from /api/listMarketBet. In play, or Coming up
 function loggOddsPriv(data, times, isInPlay) {
     var eventIds = data.map(item => item.eventId);
 
     // get saved Vishnus
     vishnu.dataset.find().where("eventId").in(eventIds).exec((err, dBresults) => {
         
+        // main loop
         for (var i in data) {
 
+            // get Vishnus loop item from arry retueneed from DB
             var recordInDb;
             for (var ii in dBresults) {
                 if (dBresults[ii].eventId == data[i].eventId) {
@@ -82,7 +91,7 @@ function loggOddsPriv(data, times, isInPlay) {
                 }
             }
 
-            // self healing. update competition, country, eventName or openDate if undefined
+            // self healing. update competition, country, eventName or openDate if undefined before
             try {
                 var dbSelId0 = recordInDb.markets[0].selectionIds[0].selectionId;
                 var dbSelId1 = recordInDb.markets[0].selectionIds[1].selectionId;
@@ -118,6 +127,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Self healing. Vishnu properies updated for event: " + data[i].eventId); }
             }
 
+            // compose back and lay prices
             try { 
                 var back0priceDB = recordInDb.markets[0].selection[0].back[0].price
                 var back0priceBF = data[i].odds[0].back[0].price
@@ -230,6 +240,8 @@ function loggOddsPriv(data, times, isInPlay) {
 
             } catch (e) { 
 
+                // means there is no coresponding item in DB, and it is created.
+                // it might happen that properties are not present in 1st responce, that is fixed by "self healing"
                 var market = { 
                     marketId: data[i].marketId,
                     marketName: "Match Odds",
