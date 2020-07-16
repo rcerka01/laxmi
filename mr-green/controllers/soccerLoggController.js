@@ -109,10 +109,23 @@ function loggOddsPriv(data, times, isInPlay) {
                 var dataSelId1 = "dog";
                 var dataSelId1 = "dog";
             } 
-            if (recordInDb.competition != data[i].competition ||
-                recordInDb.eventName != data[i].eventName ||
-                recordInDb.country != data[i].eventCountryIds ||
-                recordInDb.openDate != data[i].openDate ||
+
+            // try BF fields
+            try { var competitionBF = data[i].competition; } catch(e) { var competitionBF = ""; }
+            try { var eventNameBF = data[i].eventName; } catch(e) { var eventNameBF = ""; }
+            try { var eventCountryIdsBF = data[i].eventCountryIds; } catch(e) { var eventCountryIdsBF = ""; }
+            try { var openDateBF = data[i].openDate; } catch(e) { var openDateBF = ""; }
+
+            // try DB fields
+            try { var competitionDB = recordInDb.competition; } catch(e) { var competitionDB = ""; }
+            try { var eventNameDB = recordInDb.eventName; } catch(e) { var eventNameDB = ""; }
+            try { var countryDB = recordInDb.country; } catch(e) { var countryDB = ""; }
+            try { var openDateDB = recordInDb.openDate; } catch(e) { var openDateDB = ""; }
+
+            if (competitionDB != competitionBF ||
+                eventNameDB != eventNameBF ||
+                countryDB != eventCountryIdsBF ||
+                openDateDB != openDateBF ||
                 dbSelId0 != dataSelId0 || dbSelId1 != dataSelId1 || dbSelId2 != dataSelId2
                 ) {
                     var conditions = { eventId: data[i].eventId }
