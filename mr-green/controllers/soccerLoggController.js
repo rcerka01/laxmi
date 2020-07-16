@@ -57,7 +57,7 @@ function updateAccountsStatus(currentStatus, times) {
 
 // ODDS #########################################################################################
 
-function updateOddsInDb(conditions, update) {
+function updateOddsInDb(conditions, update, eventId) {
     if (writeOdds) {
         vishnu.dataset.findOneAndUpdate(conditions, update, {upsert: true}, function(err) {
             if (err) {
@@ -69,8 +69,12 @@ function updateOddsInDb(conditions, update) {
 }
 
 function isAboveThreshold(prev, curr) {
-   if (prev - curr > threshold || curr - prev > threshold ) { return true; }
-   return false;
+    var a = parseFloat(prev) - parseFloat(curr);
+    var b = parseFloat(curr) - parseFloat(prev);
+    var thr = parseFloat(threshold);
+    if (a > thr) { return true; }
+    if (b > thr) { return true; }
+    return false;
 }
 
 // data is one, chunked by 20 and reformated, response from /api/listMarketBet. In play, or Coming up
@@ -83,7 +87,7 @@ function loggOddsPriv(data, times, isInPlay) {
         // main loop
         for (var i in data) {
 
-            // get Vishnus loop item from arry retueneed from DB
+            //get Vishnus loop item from arry retueneed from DB
             var recordInDb;
             for (var ii in dBresults) {
                 if (dBresults[ii].eventId == data[i].eventId) {
@@ -91,7 +95,7 @@ function loggOddsPriv(data, times, isInPlay) {
                 }
             }
 
-            // self healing. update competition, country, eventName or openDate if undefined before
+            //self healing. update competition, country, eventName or openDate if undefined before
             try {
                 var dbSelId0 = recordInDb.markets[0].selectionIds[0].selectionId;
                 var dbSelId1 = recordInDb.markets[0].selectionIds[1].selectionId;
@@ -115,17 +119,20 @@ function loggOddsPriv(data, times, isInPlay) {
             try { var eventNameBF = data[i].eventName; } catch(e) { var eventNameBF = ""; }
             try { var eventCountryIdsBF = data[i].eventCountryIds; } catch(e) { var eventCountryIdsBF = ""; }
             try { var openDateBF = data[i].openDate; } catch(e) { var openDateBF = ""; }
+            try { var marketIdBF = data[i].marketId; } catch(e) { var marketIdBF = ""; }
 
             // try DB fields
             try { var competitionDB = recordInDb.competition; } catch(e) { var competitionDB = ""; }
             try { var eventNameDB = recordInDb.eventName; } catch(e) { var eventNameDB = ""; }
             try { var countryDB = recordInDb.country; } catch(e) { var countryDB = ""; }
             try { var openDateDB = recordInDb.openDate; } catch(e) { var openDateDB = ""; }
+            try { var marketIdDB = recordInDb.markets[0].marketId; } catch(e) { var marketIdDB = ""; }
 
             if (competitionDB != competitionBF ||
                 eventNameDB != eventNameBF ||
                 countryDB != eventCountryIdsBF ||
                 openDateDB != openDateBF ||
+                marketIdDB != marketIdBF ||
                 dbSelId0 != dataSelId0 || dbSelId1 != dataSelId1 || dbSelId2 != dataSelId2
                 ) {
                     var conditions = { eventId: data[i].eventId }
@@ -134,13 +141,16 @@ function loggOddsPriv(data, times, isInPlay) {
                         "country": data[i].eventCountryIds,
                         "competition": data[i].competition,
                         "openDate": data[i].openDate,
-                        "markets.0.selectionIds": data[i].selectionIds
+                        "markets.0.selectionIds": data[i].selectionIds,
+                        "markets.0.created": new Date(),
+                        "markets.0.marketName": "Match Odds",
+                        "markets.0.marketId": data[i].marketId
                     }
                     updateOddsInDb(conditions, update);
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Self healing. Vishnu properies updated for event: " + data[i].eventId); }
             }
 
-            // compose back and lay prices
+            //compose back and lay price
             try { 
                 var back0priceDB = recordInDb.markets[0].selection[0].back[0].price
                 var back0priceBF = data[i].odds[0].back[0].price
@@ -171,7 +181,7 @@ function loggOddsPriv(data, times, isInPlay) {
 
                     updateOddsInDb(conditions, update);
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 0 price updated " + data[i].eventId); }
-
+                }
 
                 if (lay0priceDB != lay0priceBF && isAboveThreshold(lay0priceDB, lay0priceBF)) {
                     var tempArr = recordInDb.markets[0].selection[0].lay
@@ -219,7 +229,7 @@ function loggOddsPriv(data, times, isInPlay) {
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 1 price updated " + data[i].eventId); }
                 }   
                 
-                // 2.
+                // 2.                
                 if (back2priceDB != back2priceBF && isAboveThreshold(back2priceDB, back2priceBF)) {
                     var tempArr = recordInDb.markets[0].selection[2].back
                     tempArr.unshift({
@@ -248,41 +258,47 @@ function loggOddsPriv(data, times, isInPlay) {
 
                     updateOddsInDb(conditions, update);
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 2 price updated " + data[i].eventId); }
-                }
-            }   
+                }   
 
             } catch (e) { 
+                // check if event not exist
+                vishnu.dataset.count({ eventId: data[i].eventId }, function (err, count) { 
 
-                // means there is no coresponding item in DB, and it is created.
-                // it might happen that properties are not present in 1st responce, that is fixed by "self healing"
-                var market = { 
-                    marketId: data[i].marketId,
-                    marketName: "Match Odds",
-                    totalMatched: data[i].totalMatched,
-                    created: new Date(),
-                    selectionIds: data[i].selectionIds,
-                    selection: data[i].odds
-                };
+                    // means there is no coresponding item in DB, and it will be created.
+                    // it might happen that properties are not present in 1st responce, that is fixed by "self healing"
+                    if (count < 1) {
+                    
+                        var market = { 
+                            marketId: data[i].marketId,
+                            marketName: "Match Odds",
+                            created: new Date(),
+                            selectionIds: data[i].selectionIds,
+                            selection: data[i].odds
+                        };
 
-                var update = {
-                    eventId: data[i].eventId,
-                    eventName: data[i].eventName,
-                    country: data[i].eventCountryIds,
-                    competition: data[i].competition,
-                    openDate: data[i].openDate,
-                    markets: [market]
-                }
+                        var update = {
+                            eventId: data[i].eventId,
+                            eventName: data[i].eventName,
+                            country: data[i].eventCountryIds,
+                            competition: data[i].competition,
+                            openDate: data[i].openDate,
+                            markets: [market]
+                        }
 
-                var conditions = { eventId: data[i].eventId }
+                        var conditions = { eventId: data[i].eventId }
 
-                updateOddsInDb(conditions, update);
-                if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Market updated fully"); }
+                        updateOddsInDb(conditions, update);
+                        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Market updated fully"); }
+                    }
+                });
             }
 
-        }
-
+        } 
+    
         if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Logg controller. Part update done"); }
-    });
+  
+    });  
+    
 }
 
 
