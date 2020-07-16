@@ -176,8 +176,21 @@ function loggOddsPriv(data, times, isInPlay) {
                         updated: new Date(),
                         isInPlay: isInPlay})
 
+                    // comb back
+                    try { var tempCombArr = recordInDb.markets[0].combined.back[0] } catch(e) { var tempCombArr= []; }
+                    tempCombArr.unshift({
+                        updated: new Date(),
+                        home: back0priceBF,
+                        away: back1priceBF,
+                        draw: back2priceBF,
+                    })
+
+                    // to save
                     var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.0.back": tempArr }
+                    var update = { 
+                        "markets.0.selection.0.back": tempArr,
+                        "markets.0.combined.back": tempCombArr
+                     }
 
                     updateOddsInDb(conditions, update);
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 0 price updated " + data[i].eventId); }
@@ -191,8 +204,19 @@ function loggOddsPriv(data, times, isInPlay) {
                         updated: new Date(),
                         isInPlay: isInPlay})
 
+                        // comb lay
+                        try { var tempCombArr = recordInDb.markets[0].combined.lay[0] } catch(e) { var tempCombArr= []; }
+                        tempCombArr.unshift({
+                            updated: new Date(),
+                            home: lay0priceBF,
+                            away: lay1priceBF,
+                            draw: lay2priceBF,
+                        })
+
+                    // to save    
                     var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.0.lay": tempArr }
+                    var update = { "markets.0.selection.0.lay": tempArr,
+                                   "markets.0.combined.lay": tempCombArr }
 
                     updateOddsInDb(conditions, update);
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 0 price updated " + data[i].eventId); }
@@ -207,8 +231,19 @@ function loggOddsPriv(data, times, isInPlay) {
                         updated: new Date(),
                         isInPlay: isInPlay})
 
+                    // comb back
+                    try { var tempCombArr = recordInDb.markets[0].combined.back[0] } catch(e) { var tempCombArr= []; }
+                    tempCombArr.unshift({
+                        updated: new Date(),
+                        home: back0priceBF,
+                        away: back1priceBF,
+                        draw: back2priceBF,
+                    })
+
+                    // to save
                     var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.1.back": tempArr }
+                    var update = { "markets.0.selection.1.back": tempArr,
+                                   "markets.0.combined.back": tempCombArr }
 
                     updateOddsInDb(conditions, update);
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 1 price updated " + data[i].eventId); }
@@ -222,8 +257,19 @@ function loggOddsPriv(data, times, isInPlay) {
                         updated: new Date(),
                         isInPlay: isInPlay})
 
+                        // comb lay
+                        try { var tempCombArr = recordInDb.markets[0].combined.lay[0] } catch(e) { var tempCombArr= []; }
+                        tempCombArr.unshift({
+                            updated: new Date(),
+                            home: lay0priceBF,
+                            away: lay1priceBF,
+                            draw: lay2priceBF,
+                        })
+
+                    // to save    
                     var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.1.lay": tempArr }
+                    var update = { "markets.0.selection.1.lay": tempArr,
+                                   "markets.0.combined.lay": tempCombArr }
 
                     updateOddsInDb(conditions, update);
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 1 price updated " + data[i].eventId); }
@@ -238,8 +284,19 @@ function loggOddsPriv(data, times, isInPlay) {
                         updated: new Date(),
                         isInPlay: isInPlay})
 
+                    // comb back
+                    try { var tempCombArr = recordInDb.markets[0].combined.back[0] } catch(e) { var tempCombArr= []; }
+                    tempCombArr.unshift({
+                        updated: new Date(),
+                        home: back0priceBF,
+                        away: back1priceBF,
+                        draw: back2priceBF,
+                    })
+
+                    // to save
                     var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.2.back": tempArr }
+                    var update = { "markets.0.selection.2.back": tempArr, 
+                                   "markets.0.combined.back": tempCombAr }
 
                     updateOddsInDb(conditions, update);
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 2 price updated " + data[i].eventId); }
@@ -253,8 +310,19 @@ function loggOddsPriv(data, times, isInPlay) {
                         updated: new Date(),
                         isInPlay: isInPlay})
 
+                    // comb lay
+                    try { var tempCombArr = recordInDb.markets[0].combined.lay[0] } catch(e) { var tempCombArr= []; }
+                    tempCombArr.unshift({
+                        updated: new Date(),
+                        home: lay0priceBF,
+                        away: lay1priceBF,
+                        draw: lay2priceBF,
+                    })
+
+                    // to sve
                     var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.2.lay": tempArr }
+                    var update = { "markets.0.selection.2.lay": tempArr,
+                                   "markets.0.combined.lay": tempCombArr }
 
                     updateOddsInDb(conditions, update);
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 2 price updated " + data[i].eventId); }
