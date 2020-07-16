@@ -57,7 +57,7 @@ function updateAccountsStatus(currentStatus, times) {
 
 // ODDS #########################################################################################
 
-function updateOddsInDb(conditions, update, eventId) {
+function updateOddsInDb(conditions, update) {
     if (writeOdds) {
         vishnu.dataset.findOneAndUpdate(conditions, update, {upsert: true}, function(err) {
             if (err) {
