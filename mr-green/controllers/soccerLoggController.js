@@ -170,7 +170,7 @@ function loggOddsPriv(data, times, isInPlay) {
                 // 0.
                 if (back0priceDB != back0priceBF && isAboveThreshold(back0priceDB, back0priceBF)) {
                     var tempArr = [];
-                    // not use try, it will force insert a new market
+                    // not use try, this will force insert a new market
                     tempArr = recordInDb.markets[0].selection[0].back
 
                     tempArr.unshift({
@@ -203,7 +203,7 @@ function loggOddsPriv(data, times, isInPlay) {
 
                 if (lay0priceDB != lay0priceBF && isAboveThreshold(lay0priceDB, lay0priceBF)) {
                     var tempArr = [];
-                    // not use try, it will force insert a new market
+                    // not use try, this will force insert a new market
                     tempArr = recordInDb.markets[0].selection[0].lay
                     tempArr.unshift({
                         price: data[i].odds[0].lay[0].price,
