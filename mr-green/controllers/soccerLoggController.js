@@ -169,15 +169,20 @@ function loggOddsPriv(data, times, isInPlay) {
 
                 // 0.
                 if (back0priceDB != back0priceBF && isAboveThreshold(back0priceDB, back0priceBF)) {
-                    var tempArr = recordInDb.markets[0].selection[0].back
+                    var tempArr = [];
+                    // not use try, it will force insert a new market
+                    tempArr = recordInDb.markets[0].selection[0].back
+
                     tempArr.unshift({
                         price: data[i].odds[0].back[0].price,
                         size: data[i].odds[0].back[0].size,
                         updated: new Date(),
-                        isInPlay: isInPlay})
+                        isInPlay: isInPlay});
 
                     // comb back
-                    try { var tempCombArr = recordInDb.markets[0].combined.back[0] } catch(e) { var tempCombArr= []; }
+                    var tempCombArr = [];
+                    try { tempCombArr = recordInDb.markets[0].combined.back; } catch(e) {}
+
                     tempCombArr.unshift({
                         updated: new Date(),
                         home: back0priceBF,
@@ -197,21 +202,24 @@ function loggOddsPriv(data, times, isInPlay) {
                 }
 
                 if (lay0priceDB != lay0priceBF && isAboveThreshold(lay0priceDB, lay0priceBF)) {
-                    var tempArr = recordInDb.markets[0].selection[0].lay
+                    var tempArr = [];
+                    // not use try, it will force insert a new market
+                    tempArr = recordInDb.markets[0].selection[0].lay
                     tempArr.unshift({
                         price: data[i].odds[0].lay[0].price,
                         size: data[i].odds[0].lay[0].size,
                         updated: new Date(),
                         isInPlay: isInPlay})
 
-                        // comb lay
-                        try { var tempCombArr = recordInDb.markets[0].combined.lay[0] } catch(e) { var tempCombArr= []; }
-                        tempCombArr.unshift({
-                            updated: new Date(),
-                            home: lay0priceBF,
-                            away: lay1priceBF,
-                            draw: lay2priceBF,
-                        })
+                    // comb lay
+                    var tempCombArr = [];
+                    try { tempCombArr = recordInDb.markets[0].combined.lay } catch(e) {}
+                    tempCombArr.unshift({
+                        updated: new Date(),
+                        home: lay0priceBF,
+                        away: lay1priceBF,
+                        draw: lay2priceBF,
+                    })
 
                     // to save    
                     var conditions = { eventId: data[i].eventId }
@@ -224,7 +232,8 @@ function loggOddsPriv(data, times, isInPlay) {
 
                 // 1.
                 if (back1priceDB != back1priceBF && isAboveThreshold(back1priceDB, back1priceBF)) {
-                    var tempArr = recordInDb.markets[0].selection[1].back
+                    var tempArr = [];
+                    tempArr = recordInDb.markets[0].selection[1].back
                     tempArr.unshift({
                         price: data[i].odds[1].back[0].price,
                         size: data[i].odds[1].back[0].size,
@@ -232,7 +241,8 @@ function loggOddsPriv(data, times, isInPlay) {
                         isInPlay: isInPlay})
 
                     // comb back
-                    try { var tempCombArr = recordInDb.markets[0].combined.back[0] } catch(e) { var tempCombArr= []; }
+                    var tempCombArr = [];
+                    try { tempCombArr = recordInDb.markets[0].combined.back } catch(e) {} 
                     tempCombArr.unshift({
                         updated: new Date(),
                         home: back0priceBF,
@@ -250,7 +260,8 @@ function loggOddsPriv(data, times, isInPlay) {
                 }
 
                 if (lay1priceDB != lay1priceBF && isAboveThreshold(lay1priceDB, lay1priceBF)) {
-                    var tempArr = recordInDb.markets[0].selection[1].lay
+                    var tempArr =[];
+                    tempArr = recordInDb.markets[0].selection[1].lay
                     tempArr.unshift({
                         price: data[i].odds[1].lay[0].price,
                         size: data[i].odds[1].lay[0].size,
@@ -258,7 +269,8 @@ function loggOddsPriv(data, times, isInPlay) {
                         isInPlay: isInPlay})
 
                         // comb lay
-                        try { var tempCombArr = recordInDb.markets[0].combined.lay[0] } catch(e) { var tempCombArr= []; }
+                        var tempCombArr = [];
+                        try { tempCombArr = recordInDb.markets[0].combined.lay } catch(e) {}
                         tempCombArr.unshift({
                             updated: new Date(),
                             home: lay0priceBF,
@@ -277,7 +289,8 @@ function loggOddsPriv(data, times, isInPlay) {
                 
                 // 2.                
                 if (back2priceDB != back2priceBF && isAboveThreshold(back2priceDB, back2priceBF)) {
-                    var tempArr = recordInDb.markets[0].selection[2].back
+                    var tempArr =  [];
+                    tempArr = recordInDb.markets[0].selection[2].back
                     tempArr.unshift({
                         price: data[i].odds[2].back[0].price,
                         size: data[i].odds[2].back[0].size,
@@ -285,7 +298,8 @@ function loggOddsPriv(data, times, isInPlay) {
                         isInPlay: isInPlay})
 
                     // comb back
-                    try { var tempCombArr = recordInDb.markets[0].combined.back[0] } catch(e) { var tempCombArr= []; }
+                    var tempCombArr = [];
+                    try { tempCombArr = recordInDb.markets[0].combined.back } catch(e) {}
                     tempCombArr.unshift({
                         updated: new Date(),
                         home: back0priceBF,
@@ -296,14 +310,16 @@ function loggOddsPriv(data, times, isInPlay) {
                     // to save
                     var conditions = { eventId: data[i].eventId }
                     var update = { "markets.0.selection.2.back": tempArr, 
-                                   "markets.0.combined.back": tempCombAr }
+                                   "markets.0.combined.back": tempCombArr }
 
                     updateOddsInDb(conditions, update);
                     if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 2 price updated " + data[i].eventId); }
                 }
 
                 if (lay2priceDB != lay2priceBF && isAboveThreshold(lay2priceDB, lay2priceBF)) {
-                    var tempArr = recordInDb.markets[0].selection[2].lay
+
+                    var tempArr = [];
+                    tempArr = recordInDb.markets[0].selection[2].lay
                     tempArr.unshift({
                         price: data[i].odds[2].lay[0].price,
                         size: data[i].odds[2].lay[0].size,
@@ -311,7 +327,8 @@ function loggOddsPriv(data, times, isInPlay) {
                         isInPlay: isInPlay})
 
                     // comb lay
-                    try { var tempCombArr = recordInDb.markets[0].combined.lay[0] } catch(e) { var tempCombArr= []; }
+                    var tempCombArr = [];
+                    try { tempCombArr = recordInDb.markets[0].combined.lay } catch(e) {}
                     tempCombArr.unshift({
                         updated: new Date(),
                         home: lay0priceBF,
