@@ -212,7 +212,7 @@ function loggOddsPriv(dataBF, times, isInPlay) {
                     if (back0priceDB != back0priceBF && isAboveThreshold(back0priceDB, back0priceBF)) {
                         try { var arrDB = recordDB.markets[0].combined.back } catch(e) { var arrDB = []; }
 
-                        // to saveisIn
+                        // to save
                         var conditions = { eventId: dataBF[i].eventId }
                         var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back", isInPlay)                     
                         updateOddsInDb(conditions, update);

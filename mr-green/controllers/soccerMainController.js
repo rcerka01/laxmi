@@ -45,7 +45,7 @@ function updateSoccerGames(times) {
             // log
             if (logOdds) { console.log("Iteration: " + times +". Main controller. Got ALL soccer events for ODDS controller from MR GOLD api"); }
             //##### Pass all soccer events to soccer odds controller
-            if (gamesAllResponse.body.length > 0) {
+            if (gamesAllResponse.body !== undefined && gamesAllResponse.body.length > 0) {
                 soccerOdds.updateOddChanges(gamesAllResponse.body, domainMrGold, times, false);
             }
             //#####
@@ -63,7 +63,7 @@ function updateSoccerGames(times) {
             // log
             if (logOdds) { console.log("Iteration: " + times +". Main controller. Got IN-PLAY soccer events for ODDS controller from MR GOLD api"); }
             //##### Pass in-play soccer events to soccer odds controller
-            if (gamesInPlayResponse.body.length > 0) {
+            if (gamesInPlayResponse.body !== undefined && gamesInPlayResponse.body.length > 0) {
                 soccerOdds.updateOddChanges(gamesInPlayResponse.body, domainMrGold, times, true);
             }
             //#####
