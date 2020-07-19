@@ -78,7 +78,6 @@ function isAboveThreshold(prev, curr) {
 }
 
 function formUpdateOdds(homePriceBF, awayPriceBF, drawPriceBF, arrDB, backOrLay, isInPlay) {
-    const key = "markets.0.combined." + backOrLay;
     var item = {
         home:  homePriceBF,
         away:  awayPriceBF,
@@ -89,7 +88,10 @@ function formUpdateOdds(homePriceBF, awayPriceBF, drawPriceBF, arrDB, backOrLay,
     // add
     arrDB.unshift(item)
     // to save
-    return { key: arrDB }
+
+    if (backOrLay == "back") return { "markets.0.combined.back": arrDB }
+    else if (backOrLay == "lay") return { "markets.0.combined.lay": arrDB }
+    else { console.log("EXCEPTION. Incorrect save parameter") }
 }
 
 function saveOrUpdateEvent(dataBF, times, isInPlay, saveOrUpdate) {
@@ -210,9 +212,9 @@ function loggOddsPriv(dataBF, times, isInPlay) {
                     if (back0priceDB != back0priceBF && isAboveThreshold(back0priceDB, back0priceBF)) {
                         try { var arrDB = recordDB.markets[0].combined.back } catch(e) { var arrDB = []; }
 
-                        // to save
+                        // to saveisIn
                         var conditions = { eventId: dataBF[i].eventId }
-                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back", isInPlay)
+                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back", isInPlay)                     
                         updateOddsInDb(conditions, update);
                         if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 0 price updated " + dataBF[i].eventId); }
                     }
