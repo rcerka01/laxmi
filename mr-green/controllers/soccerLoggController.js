@@ -77,315 +77,256 @@ function isAboveThreshold(prev, curr) {
     return false;
 }
 
-// data is one, chunked by 20 and reformated, response from /api/listMarketBet. In play, or Coming up
-function loggOddsPriv(data, times, isInPlay) {
-    var eventIds = data.map(item => item.eventId);
-
-    // get saved Vishnus
-    vishnu.dataset.find().where("eventId").in(eventIds).exec((err, dBresults) => {
-        
-        // main loop
-        for (var i in data) {
-
-            //get Vishnus loop item from arry retueneed from DB
-            var recordInDb;
-            for (var ii in dBresults) {
-                if (dBresults[ii].eventId == data[i].eventId) {
-                    var recordInDb = dBresults[ii];
-                }
-            }
-
-            //self healing. update competition, country, eventName or openDate if undefined before
-            try {
-                var dbSelId0 = recordInDb.markets[0].selectionIds[0].selectionId;
-                var dbSelId1 = recordInDb.markets[0].selectionIds[1].selectionId;
-                var dbSelId2 = recordInDb.markets[0].selectionIds[2].selectionId;
-
-                var dataSelId0 = data[i].selectionIds[0].selectionId;
-                var dataSelId1 = data[i].selectionIds[1].selectionId;
-                var dataSelId2 = data[i].selectionIds[2].selectionId;
-            } catch (e) {
-                var dbSelId0 = "cat";
-                var dbSelId1 = "cat";
-                var dbSelId2 = "cat";
-
-                var dataSelId0 = "dog";
-                var dataSelId1 = "dog";
-                var dataSelId1 = "dog";
-            } 
-
-            // try BF fields
-            try { var competitionBF = data[i].competition; } catch(e) { var competitionBF = ""; }
-            try { var eventNameBF = data[i].eventName; } catch(e) { var eventNameBF = ""; }
-            try { var eventCountryIdsBF = data[i].eventCountryIds; } catch(e) { var eventCountryIdsBF = ""; }
-            try { var openDateBF = data[i].openDate; } catch(e) { var openDateBF = ""; }
-            try { var marketIdBF = data[i].marketId; } catch(e) { var marketIdBF = ""; }
-
-            // try DB fields
-            try { var competitionDB = recordInDb.competition; } catch(e) { var competitionDB = ""; }
-            try { var eventNameDB = recordInDb.eventName; } catch(e) { var eventNameDB = ""; }
-            try { var countryDB = recordInDb.country; } catch(e) { var countryDB = ""; }
-            try { var openDateDB = recordInDb.openDate; } catch(e) { var openDateDB = ""; }
-            try { var marketIdDB = recordInDb.markets[0].marketId; } catch(e) { var marketIdDB = ""; }
-
-            if (competitionDB != competitionBF ||
-                eventNameDB != eventNameBF ||
-                countryDB != eventCountryIdsBF ||
-                openDateDB != openDateBF ||
-                marketIdDB != marketIdBF ||
-                dbSelId0 != dataSelId0 || dbSelId1 != dataSelId1 || dbSelId2 != dataSelId2
-                ) {
-                    var conditions = { eventId: data[i].eventId }
-                    var update = {
-                        "eventName": data[i].eventName,
-                        "country": data[i].eventCountryIds,
-                        "competition": data[i].competition,
-                        "openDate": data[i].openDate,
-                        "markets.0.selectionIds": data[i].selectionIds,
-                        "markets.0.created": new Date(),
-                        "markets.0.marketName": "Match Odds",
-                        "markets.0.marketId": data[i].marketId
-                    }
-                    updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Self healing. Vishnu properies updated for event: " + data[i].eventId); }
-            }
-
-            //compose back and lay price
-            try { 
-                var back0priceDB = recordInDb.markets[0].selection[0].back[0].price
-                var back0priceBF = data[i].odds[0].back[0].price
-                var lay0priceDB = recordInDb.markets[0].selection[0].lay[0].price
-                var lay0priceBF = data[i].odds[0].lay[0].price
-
-                var back1priceDB = recordInDb.markets[0].selection[1].back[0].price
-                var back1priceBF = data[i].odds[1].back[0].price
-                var lay1priceDB = recordInDb.markets[0].selection[1].lay[0].price
-                var lay1priceBF = data[i].odds[1].lay[0].price
-
-                var back2priceDB = recordInDb.markets[0].selection[2].back[0].price
-                var back2priceBF = data[i].odds[2].back[0].price
-                var lay2priceDB = recordInDb.markets[0].selection[2].lay[0].price
-                var lay2priceBF = data[i].odds[2].lay[0].price
-
-                // 0.
-                if (back0priceDB != back0priceBF && isAboveThreshold(back0priceDB, back0priceBF)) {
-                    var tempArr = [];
-                    // not use try, this will force insert a new market
-                    tempArr = recordInDb.markets[0].selection[0].back
-
-                    tempArr.unshift({
-                        price: data[i].odds[0].back[0].price,
-                        size: data[i].odds[0].back[0].size,
-                        updated: new Date(),
-                        isInPlay: isInPlay});
-
-                    // comb back
-                    var tempCombArr = [];
-                    try { tempCombArr = recordInDb.markets[0].combined.back; } catch(e) {}
-
-                    tempCombArr.unshift({
-                        updated: new Date(),
-                        home: back0priceBF,
-                        away: back1priceBF,
-                        draw: back2priceBF,
-                    })
-
-                    // to save
-                    var conditions = { eventId: data[i].eventId }
-                    var update = { 
-                        "markets.0.selection.0.back": tempArr,
-                        "markets.0.combined.back": tempCombArr
-                     }
-
-                    updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 0 price updated " + data[i].eventId); }
-                }
-
-                if (lay0priceDB != lay0priceBF && isAboveThreshold(lay0priceDB, lay0priceBF)) {
-                    var tempArr = [];
-                    // not use try, this will force insert a new market
-                    tempArr = recordInDb.markets[0].selection[0].lay
-                    tempArr.unshift({
-                        price: data[i].odds[0].lay[0].price,
-                        size: data[i].odds[0].lay[0].size,
-                        updated: new Date(),
-                        isInPlay: isInPlay})
-
-                    // comb lay
-                    var tempCombArr = [];
-                    try { tempCombArr = recordInDb.markets[0].combined.lay } catch(e) {}
-                    tempCombArr.unshift({
-                        updated: new Date(),
-                        home: lay0priceBF,
-                        away: lay1priceBF,
-                        draw: lay2priceBF,
-                    })
-
-                    // to save    
-                    var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.0.lay": tempArr,
-                                   "markets.0.combined.lay": tempCombArr }
-
-                    updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 0 price updated " + data[i].eventId); }
-                }
-
-                // 1.
-                if (back1priceDB != back1priceBF && isAboveThreshold(back1priceDB, back1priceBF)) {
-                    var tempArr = [];
-                    tempArr = recordInDb.markets[0].selection[1].back
-                    tempArr.unshift({
-                        price: data[i].odds[1].back[0].price,
-                        size: data[i].odds[1].back[0].size,
-                        updated: new Date(),
-                        isInPlay: isInPlay})
-
-                    // comb back
-                    var tempCombArr = [];
-                    try { tempCombArr = recordInDb.markets[0].combined.back } catch(e) {} 
-                    tempCombArr.unshift({
-                        updated: new Date(),
-                        home: back0priceBF,
-                        away: back1priceBF,
-                        draw: back2priceBF,
-                    })
-
-                    // to save
-                    var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.1.back": tempArr,
-                                   "markets.0.combined.back": tempCombArr }
-
-                    updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 1 price updated " + data[i].eventId); }
-                }
-
-                if (lay1priceDB != lay1priceBF && isAboveThreshold(lay1priceDB, lay1priceBF)) {
-                    var tempArr =[];
-                    tempArr = recordInDb.markets[0].selection[1].lay
-                    tempArr.unshift({
-                        price: data[i].odds[1].lay[0].price,
-                        size: data[i].odds[1].lay[0].size,
-                        updated: new Date(),
-                        isInPlay: isInPlay})
-
-                        // comb lay
-                        var tempCombArr = [];
-                        try { tempCombArr = recordInDb.markets[0].combined.lay } catch(e) {}
-                        tempCombArr.unshift({
-                            updated: new Date(),
-                            home: lay0priceBF,
-                            away: lay1priceBF,
-                            draw: lay2priceBF,
-                        })
-
-                    // to save    
-                    var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.1.lay": tempArr,
-                                   "markets.0.combined.lay": tempCombArr }
-
-                    updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 1 price updated " + data[i].eventId); }
-                }   
-                
-                // 2.                
-                if (back2priceDB != back2priceBF && isAboveThreshold(back2priceDB, back2priceBF)) {
-                    var tempArr =  [];
-                    tempArr = recordInDb.markets[0].selection[2].back
-                    tempArr.unshift({
-                        price: data[i].odds[2].back[0].price,
-                        size: data[i].odds[2].back[0].size,
-                        updated: new Date(),
-                        isInPlay: isInPlay})
-
-                    // comb back
-                    var tempCombArr = [];
-                    try { tempCombArr = recordInDb.markets[0].combined.back } catch(e) {}
-                    tempCombArr.unshift({
-                        updated: new Date(),
-                        home: back0priceBF,
-                        away: back1priceBF,
-                        draw: back2priceBF,
-                    })
-
-                    // to save
-                    var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.2.back": tempArr, 
-                                   "markets.0.combined.back": tempCombArr }
-
-                    updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 2 price updated " + data[i].eventId); }
-                }
-
-                if (lay2priceDB != lay2priceBF && isAboveThreshold(lay2priceDB, lay2priceBF)) {
-
-                    var tempArr = [];
-                    tempArr = recordInDb.markets[0].selection[2].lay
-                    tempArr.unshift({
-                        price: data[i].odds[2].lay[0].price,
-                        size: data[i].odds[2].lay[0].size,
-                        updated: new Date(),
-                        isInPlay: isInPlay})
-
-                    // comb lay
-                    var tempCombArr = [];
-                    try { tempCombArr = recordInDb.markets[0].combined.lay } catch(e) {}
-                    tempCombArr.unshift({
-                        updated: new Date(),
-                        home: lay0priceBF,
-                        away: lay1priceBF,
-                        draw: lay2priceBF,
-                    })
-
-                    // to sve
-                    var conditions = { eventId: data[i].eventId }
-                    var update = { "markets.0.selection.2.lay": tempArr,
-                                   "markets.0.combined.lay": tempCombArr }
-
-                    updateOddsInDb(conditions, update);
-                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 2 price updated " + data[i].eventId); }
-                }   
-
-            } catch (e) { 
-                // check if event not exist
-                vishnu.dataset.count({ eventId: data[i].eventId }, function (err, count) { 
-
-                    // means there is no coresponding item in DB, and it will be created.
-                    // it might happen that properties are not present in 1st responce, that is fixed by "self healing"
-                    if (count < 1) {
-                    
-                        var market = { 
-                            marketId: data[i].marketId,
-                            marketName: "Match Odds",
-                            created: new Date(),
-                            selectionIds: data[i].selectionIds,
-                            selection: data[i].odds
-                        };
-
-                        var update = {
-                            eventId: data[i].eventId,
-                            eventName: data[i].eventName,
-                            country: data[i].eventCountryIds,
-                            competition: data[i].competition,
-                            openDate: data[i].openDate,
-                            markets: [market]
-                        }
-
-                        var conditions = { eventId: data[i].eventId }
-
-                        updateOddsInDb(conditions, update);
-                        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Market updated fully"); }
-                    }
-                });
-            }
-
-        } 
-    
-        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Logg controller. Part update done"); }
-  
-    });  
-    
+function formUpdateOdds(homePriceBF, awayPriceBF, drawPriceBF, arrDB, backOrLay, id) {
+    const key = "markets.0.combined." + backOrLay;
+    var item = {
+        home:  homePriceBF,
+        away:  awayPriceBF,
+        draw:  drawPriceBF,
+        updated: new Date()
+    }
+    // add
+    arrDB.unshift(item)
+    // to save
+    return { key: arrDB }
 }
 
+function saveOrUpdateEvent(dataBF, times, isInPlay, saveOrUpdate) {
+
+    vishnu.dataset.count({ eventId: dataBF.eventId }, function (err, countDb) { 
+
+        if (saveOrUpdate == "update") { var count = 0; }
+        else { var count =  countDb }
+
+        // if not already exist
+        if (count < 1) {
+
+            // it might happen that properties are not present in 1st responce, that is fixed by "self healing"
+            var back = {
+                home: dataBF.odds[0].back[0].price,
+                away: dataBF.odds[1].back[0].price,
+                draw: dataBF.odds[2].back[0].price,
+                updated: new Date()
+            };
+
+            var lay = {
+                home: dataBF.odds[0].lay[0].price,
+                away: dataBF.odds[1].lay[0].price,
+                draw: dataBF.odds[2].lay[0].price,
+                updated: new Date()
+            };
+
+            var backLay = {
+                back: [back],
+                lay: [lay]
+            }
+
+            var market = { 
+                marketId: dataBF.marketId,
+                marketName: "Match Odds",
+                created: new Date(),
+                selectionIds: dataBF.selectionIds,
+                combined: backLay
+            };
+
+            var update = {
+                eventId: dataBF.eventId,
+                eventName: dataBF.eventName,
+                country: dataBF.eventCountryIds,
+                competition: dataBF.competition,
+                openDate: dataBF.openDate,
+                markets: [market]
+            }
+
+            var conditions = { eventId: dataBF.eventId }
+
+            updateOddsInDb(conditions, update);
+            if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Successful " + saveOrUpdate + " operation performed for: " + dataBF.eventId); }
+        } else {
+            if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Unuccessful " + saveOrUpdate + " operation performed for: " + dataBF.eventId + ". Probably event already exist"); }
+        }
+    });
+}
+
+// data is one, chunked by 20 and reformated, response from /api/listMarketBet. In play, or Coming up
+function loggOddsPriv(dataBF, times, isInPlay) {
+    var eventIds = dataBF.map(item => item.eventId);
+
+    // get saved Vishnus
+    vishnu.dataset.find().where("eventId").in(eventIds).exec((err, dataDB) => {
+
+        var dataBFlength = dataBF.length;
+        var dataDBlength = dataDB.length;
+
+        // main loop
+        for (var i in dataBF) {
+
+            var eventExists = true;
+
+            // insert new event not exists
+            if (dataBFlength != dataDBlength) {
+                // local
+                var eventIdsFromDb = dataDB.map( dbItem => dbItem.eventId)
+                if (!eventIdsFromDb.includes(dataBF[i].eventId)) {
+                    eventExists = false;
+                    saveOrUpdateEvent(dataBF[i], times, isInPlay, "save")
+                    if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Saving event: " + dataBF[i].eventId); }
+
+                } 
+            }
+            
+            // if exists
+            if (eventExists) {
+
+                //get Vishnus loop item from arry retueneed from DB
+                var recordDB;
+                for (var ii in dataDB) {
+                    if (dataDB[ii].eventId == dataBF[i].eventId) {
+                        recordDB = dataDB[ii];
+                    }
+                }
+
+                // get prev odds and update if succesful
+                try { 
+                    var back0priceDB = recordDB.markets[0].combined.back[0].home;
+                    var back0priceBF = dataBF[i].odds[0].back[0].price
+                    var lay0priceDB  = recordDB.markets[0].combined.lay[0].home;
+                    var lay0priceBF  = dataBF[i].odds[0].lay[0].price
+
+                    var back1priceDB = recordDB.markets[0].combined.back[0].away;
+                    var back1priceBF = dataBF[i].odds[1].back[0].price
+                    var lay1priceDB  = recordDB.markets[0].combined.lay[0].away;
+                    var lay1priceBF  = dataBF[i].odds[1].lay[0].price
+
+                    var back2priceDB = recordDB.markets[0].combined.back[0].draw;
+                    var back2priceBF = dataBF[i].odds[2].back[0].price
+                    var lay2priceDB  = recordDB.markets[0].combined.lay[0].draw;
+                    var lay2priceBF  = dataBF[i].odds[2].lay[0].price
+
+                    // 0.
+                    if (back0priceDB != back0priceBF && isAboveThreshold(back0priceDB, back0priceBF)) {
+                        try { var arrDB = recordDB.markets[0].combined.back } catch(e) { var arrDB = []; }
+
+                        // to save
+                        var conditions = { eventId: dataBF[i].eventId }
+                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back", dataBF[i].eventId)
+                        updateOddsInDb(conditions, update);
+                        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 0 price updated " + dataBF[i].eventId); }
+                    }
+
+                    if (lay0priceDB != lay0priceBF && isAboveThreshold(lay0priceDB, lay0priceBF)) {
+                        try { var arrDB = recordDB.markets[0].combined.lay } catch(e) { var arrDB = []; }
+
+                        // to save
+                        var conditions = { eventId: dataBF[i].eventId }
+                        var update = formUpdateOdds(lay0priceBF, lay1priceBF, lay2priceBF, arrDB, "lay", dataBF[i].eventId)
+                        updateOddsInDb(conditions, update);
+                        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 0 price updated " + dataBF[i].eventId); }
+                    }
+
+                    // 1.
+                    if (back1priceDB != back1priceBF && isAboveThreshold(back1priceDB, back1priceBF)) {
+                        try { var arrDB = recordDB.markets[0].combined.back } catch(e) { var arrDB = []; }
+
+                        // to save
+                        var conditions = { eventId: dataBF[i].eventId }
+                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back", dataBF[i].eventId)
+                        updateOddsInDb(conditions, update);
+                        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 1 price updated " + dataBF[i].eventId); }
+                    }
+
+                    if (lay1priceDB != lay1priceBF && isAboveThreshold(lay1priceDB, lay1priceBF)) {
+                        try { var arrDB = recordDB.markets[0].combined.lay } catch(e) { var arrDB = []; }
+
+                        // to save
+                        var conditions = { eventId: dataBF[i].eventId }
+                        var update = formUpdateOdds(lay0priceBF, lay1priceBF, lay2priceBF, arrDB, "lay", dataBF[i].eventId)
+                        updateOddsInDb(conditions, update);
+                        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 1 price updated " + dataBF[i].eventId); }
+                    }   
+                    
+                    // 2.                
+                    if (back2priceDB != back2priceBF && isAboveThreshold(back2priceDB, back2priceBF)) {
+                        try { var arrDB = recordDB.markets[0].combined.back } catch(e) { var arrDB = []; }
+
+                        // to save
+                        var conditions = { eventId: dataBF[i].eventId }
+                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back")
+                        updateOddsInDb(conditions, update);
+                        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 2 price updated " + dataBF[i].eventId); }
+                    }
+
+                    if (lay2priceDB != lay2priceBF && isAboveThreshold(lay2priceDB, lay2priceBF)) {
+                        try { var arrDB = recordDB.markets[0].combined.lay } catch(e) { var arrDB = []; }
+
+                        // to save
+                        var conditions = { eventId: dataBF[i].eventId }
+                        var update = formUpdateOdds(lay0priceBF, lay1priceBF, lay2priceBF, arrDB, "lay")
+                        updateOddsInDb(conditions, update);
+                        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 2 price updated " + dataBF[i].eventId); }
+                    }   
+
+                } catch (e) { 
+                    if (logOdds) { console.log("Error while updating Odds. Probably combined field not exist: " + e); }
+                    saveOrUpdateEvent(dataBF[i], times, isInPlay, "update")
+                }
+
+                // SELF HEALING. update competition, country, eventName, selectionIds or openDate if undefined before
+                // try BF fields
+                try { var dataSelId0 = dataBF[i].selectionIds[0].selectionId; } catch(e) { var dataSelId0 = ""; }
+                try { var dataSelId1 = dataBF[i].selectionIds[1].selectionId; } catch(e) { var dataSelId1 = ""; }
+                try { var dataSelId2 = dataBF[i].selectionIds[2].selectionId; } catch(e) { var dataSelId2 = ""; }
+
+                try { var competitionBF = dataBF[i].competition; } catch(e) { var competitionBF = ""; }
+                try { var eventNameBF = dataBF[i].eventName; } catch(e) { var eventNameBF = ""; }
+                try { var eventCountryIdsBF = dataBF[i].eventCountryIds; } catch(e) { var eventCountryIdsBF = ""; }
+                try { var openDateBF = dataBF[i].openDate; } catch(e) { var openDateBF = ""; }
+                try { var marketIdBF = dataBF[i].marketId; } catch(e) { var marketIdBF = ""; }
+
+                // try DB fields
+                try { var competitionDB = recordDB.competition; } catch(e) { var competitionDB = ""; }
+                try { var eventNameDB = recordDB.eventName; } catch(e) { var eventNameDB = ""; }
+                try { var countryDB = recordDB.country; } catch(e) { var countryDB = ""; }
+                try { var openDateDB = recordDB.openDate; } catch(e) { var openDateDB = ""; }
+                try { var marketIdDB = recordDB.markets[0].marketId; } catch(e) { var marketIdDB = ""; }
+
+                try { var dbSelId0 = recordDB.markets[0].selectionIds[0].selectionId; } catch(e) { var dbSelId0 = ""; }
+                try { var dbSelId1 = recordDB.markets[0].selectionIds[1].selectionId; } catch(e) { var dbSelId1 = ""; }
+                try { var dbSelId2 = recordDB.markets[0].selectionIds[2].selectionId; } catch(e) { var dbSelId2 = ""; }
+
+                if (competitionDB != competitionBF ||
+                    eventNameDB != eventNameBF ||
+                    countryDB != eventCountryIdsBF ||
+                    openDateDB != openDateBF ||
+                    marketIdDB != marketIdBF ||
+                    dbSelId0 != dataSelId0 || dbSelId1 != dataSelId1 || dbSelId2 != dataSelId2
+                    ) {
+                        var conditions = { eventId: dataBF[i].eventId }
+                        var update = {
+                            "eventName": dataBF[i].eventName,
+                            "country": dataBF[i].eventCountryIds,
+                            "competition": dataBF[i].competition,
+                            "openDate": dataBF[i].openDate,
+                            "markets.0.selectionIds": dataBF[i].selectionIds,
+                            "markets.0.created": new Date(),
+                            "markets.0.marketName": "Match Odds",
+                            "markets.0.marketId": dataBF[i].marketId
+                        }
+                        updateOddsInDb(conditions, update);
+                        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Self healing. Vishnu properies updated for event: " + dataBF[i].eventId); }
+                }
+
+            // if exists
+            }
+
+        // close main loop
+        }
+
+        if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Logg controller. Part update done"); }
+  
+    // close Db find
+    });     
+}
 
 // ---------------------------------------------------------------------------------------------
 
