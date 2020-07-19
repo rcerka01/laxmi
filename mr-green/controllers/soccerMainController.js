@@ -30,7 +30,7 @@ function updateSoccerGames(times) {
             if (logEvents) { console.log("Iteration: " + times +". Main controller. Got IN-PLAY soccer events for EVENTS controller from MR GOLD api"); }
 
             //##### Pass in-play soccer events to soccer events controller
-            //soccerEvents.catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, times);
+            soccerEvents.catchSoccerEvents(gamesInPlayResponse, domainVishnu, domainMrGold, times);
             //#####
         })
         .on('error', function(e) {
@@ -63,9 +63,9 @@ function updateSoccerGames(times) {
             // log
             if (logOdds) { console.log("Iteration: " + times +". Main controller. Got IN-PLAY soccer events for ODDS controller from MR GOLD api"); }
             //##### Pass in-play soccer events to soccer odds controller
-            // if (gamesInPlayResponse.body.length > 0) {
-            //     soccerOdds.updateOddChanges(gamesInPlayResponse.body, domainMrGold, times, true);
-            // }
+            if (gamesInPlayResponse.body.length > 0) {
+                soccerOdds.updateOddChanges(gamesInPlayResponse.body, domainMrGold, times, true);
+            }
             //#####
         })
         .on('error', function(e) {

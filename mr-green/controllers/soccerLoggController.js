@@ -77,12 +77,13 @@ function isAboveThreshold(prev, curr) {
     return false;
 }
 
-function formUpdateOdds(homePriceBF, awayPriceBF, drawPriceBF, arrDB, backOrLay, id) {
+function formUpdateOdds(homePriceBF, awayPriceBF, drawPriceBF, arrDB, backOrLay, isInPlay) {
     const key = "markets.0.combined." + backOrLay;
     var item = {
         home:  homePriceBF,
         away:  awayPriceBF,
         draw:  drawPriceBF,
+        isInPlay: isInPlay,
         updated: new Date()
     }
     // add
@@ -106,6 +107,7 @@ function saveOrUpdateEvent(dataBF, times, isInPlay, saveOrUpdate) {
                 home: dataBF.odds[0].back[0].price,
                 away: dataBF.odds[1].back[0].price,
                 draw: dataBF.odds[2].back[0].price,
+                isInPlay: isInPlay,
                 updated: new Date()
             };
 
@@ -113,6 +115,7 @@ function saveOrUpdateEvent(dataBF, times, isInPlay, saveOrUpdate) {
                 home: dataBF.odds[0].lay[0].price,
                 away: dataBF.odds[1].lay[0].price,
                 draw: dataBF.odds[2].lay[0].price,
+                isInPlay: isInPlay,
                 updated: new Date()
             };
 
@@ -209,7 +212,7 @@ function loggOddsPriv(dataBF, times, isInPlay) {
 
                         // to save
                         var conditions = { eventId: dataBF[i].eventId }
-                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back", dataBF[i].eventId)
+                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back", isInPlay)
                         updateOddsInDb(conditions, update);
                         if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 0 price updated " + dataBF[i].eventId); }
                     }
@@ -219,7 +222,7 @@ function loggOddsPriv(dataBF, times, isInPlay) {
 
                         // to save
                         var conditions = { eventId: dataBF[i].eventId }
-                        var update = formUpdateOdds(lay0priceBF, lay1priceBF, lay2priceBF, arrDB, "lay", dataBF[i].eventId)
+                        var update = formUpdateOdds(lay0priceBF, lay1priceBF, lay2priceBF, arrDB, "lay", isInPlay)
                         updateOddsInDb(conditions, update);
                         if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 0 price updated " + dataBF[i].eventId); }
                     }
@@ -230,7 +233,7 @@ function loggOddsPriv(dataBF, times, isInPlay) {
 
                         // to save
                         var conditions = { eventId: dataBF[i].eventId }
-                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back", dataBF[i].eventId)
+                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back", isInPlay)
                         updateOddsInDb(conditions, update);
                         if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 1 price updated " + dataBF[i].eventId); }
                     }
@@ -240,7 +243,7 @@ function loggOddsPriv(dataBF, times, isInPlay) {
 
                         // to save
                         var conditions = { eventId: dataBF[i].eventId }
-                        var update = formUpdateOdds(lay0priceBF, lay1priceBF, lay2priceBF, arrDB, "lay", dataBF[i].eventId)
+                        var update = formUpdateOdds(lay0priceBF, lay1priceBF, lay2priceBF, arrDB, "lay", isInPlay)
                         updateOddsInDb(conditions, update);
                         if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 1 price updated " + dataBF[i].eventId); }
                     }   
@@ -251,7 +254,7 @@ function loggOddsPriv(dataBF, times, isInPlay) {
 
                         // to save
                         var conditions = { eventId: dataBF[i].eventId }
-                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back")
+                        var update = formUpdateOdds(back0priceBF, back1priceBF, back2priceBF, arrDB, "back", isInPlay)
                         updateOddsInDb(conditions, update);
                         if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Back 2 price updated " + dataBF[i].eventId); }
                     }
@@ -261,7 +264,7 @@ function loggOddsPriv(dataBF, times, isInPlay) {
 
                         // to save
                         var conditions = { eventId: dataBF[i].eventId }
-                        var update = formUpdateOdds(lay0priceBF, lay1priceBF, lay2priceBF, arrDB, "lay")
+                        var update = formUpdateOdds(lay0priceBF, lay1priceBF, lay2priceBF, arrDB, "lay", isInPlay)
                         updateOddsInDb(conditions, update);
                         if (logOdds) { console.log("Iteration: " + times + ". In-play: " + isInPlay + ". Odds Lay 2 price updated " + dataBF[i].eventId); }
                     }   
