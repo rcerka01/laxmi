@@ -18,7 +18,7 @@ var config = {
         bets: false
     },
     soccer: {
-        bid: 2,
+        bid: 4,
         elapsedTime: 77,
         scoreHigher: 2,
         version: "2.0.0"
